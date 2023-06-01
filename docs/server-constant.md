@@ -18,7 +18,7 @@
 <br/>"WEBAPP_DIR" -  путь к статичным ресурсам сервера. Если в атрибуте присутствует символ "/" , тогда  путь берется полностью  , иначе относительно  расположения испольяемого сервера (*.jar)
 <br/>"DEFAULT_HOST" - "0.0.0.0"
 <br/>"DEFAULT_PORT" - ("8080") порт на котором будет работать сервер
-<br/>"SERVER_HOM" - домашний каталог сервера (расположение фалй [HttpServer-JAVA.jar](..%2Fout%2Fartifacts%2FHttpServer_JAVA_jar%2FHttpServer-JAVA.jar))
+<br/>"SERVER_HOM" - домашний каталог сервера (расположение фала [HttpServer-JAVA.jar](..%2Fout%2Fartifacts%2FHttpServer_JAVA_jar%2FHttpServer-JAVA.jar))
 
 <br/>"APP_NAME" - имя приложения (функции на SQL сервер будут иметь префикс этого имени)
 <br/>"LIB_DIR" -  Каталог расположения подключаемых библиотек JAR

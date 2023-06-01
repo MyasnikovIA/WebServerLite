@@ -22,9 +22,9 @@ public class ServerResourceHandler implements Runnable {
 
     private final Map<String, Resource> resources = new HashMap<>(); // хронилище статического ресурса в оперативной памяти
     private final Map<String, String> resourcesDateTime = new HashMap<>(); // хронилище даты и времени последней модификации файла (путь к файлу)
-    public static HashMap<String, HashMap<String, Object>> sessionList = new HashMap<>();
-    public static JavaStrExecut javaStrExecut = new JavaStrExecut();
-    private HttpExchange query;
+    public static HashMap<String, HashMap<String, Object>> sessionList = new HashMap<>(); // список всех сессий, которые зарегистрированны на сервере
+    public static JavaStrExecut javaStrExecut = new JavaStrExecut(); // класс для компиляции Java кода из текста
+    private HttpExchange query;  // объект пользовательского запроса
 
     public ServerResourceHandler(Socket socket, String pathToRoot, boolean gzippable, boolean cacheable) throws IOException, JSONException {
         query = new HttpExchange(socket, null);
@@ -214,7 +214,7 @@ public class ServerResourceHandler implements Runnable {
             String ext = getFileExt(resourcePath).toLowerCase();
             //OutputStream gout = gzip ? new GZIPOutputStream(bout) : new DataOutputStream(bout);
             OutputStream gout = new DataOutputStream(bout);
-            if ("html".equals(ext)) {
+            if ("html".equals(ext)) { // если запрашиваем HTML страницу, тогда  обрабатываем как XML структуру, для замены специализированных тэгов
                 InputStreamReader inputStreamReader = new InputStreamReader(in);
                 StringBuffer sb = new StringBuffer();
                 int charInt;
@@ -231,7 +231,6 @@ public class ServerResourceHandler implements Runnable {
                 doc.getElementsByTag("body").get(0).replaceWith(els);
                 Element elsDst = doc.getElementsByTag("html").get(0);
                 gout.write(elsDst.toString().getBytes());
-                // System.out.println(elsDst.toString());
             } else {
                 byte[] bs = new byte[4096];
                 int lenReadByts;
@@ -250,6 +249,11 @@ public class ServerResourceHandler implements Runnable {
         return bout.toByteArray();
     }
 
+    /**
+     * Получить объект сесси по ID
+     * @param sessionKey
+     * @return
+     */
     public static HashMap<String, Object> getSession(String sessionKey) {
         if (sessionList.containsKey(sessionKey)) {
             return (HashMap<String, Object>) sessionList.get(sessionKey);
@@ -257,6 +261,11 @@ public class ServerResourceHandler implements Runnable {
         return null;
     }
 
+    /**
+     * Получении (генерация) сесси по запросу брайзера
+     * @param httpExchange
+     * @return
+     */
     public static HashMap<String, Object> getSession(HttpExchange httpExchange) {
         HashMap<String, Object> userSession;
         if (!sessionList.containsKey(httpExchange.sessionID)) {
@@ -314,6 +323,14 @@ public class ServerResourceHandler implements Runnable {
     }
 
 
+    /**
+     *  функция разбора собформы XML и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
+     *  Логика  переопределения  содержимого тэгп находится в пакете "component"
+     * @param doc
+     * @param path
+     * @param SelectorQuery
+     * @return
+     */
     public static String parseSubElementV2(Document doc, String path, String SelectorQuery) {
         InputStreamReader inputStreamReader = null;
         try {
@@ -334,6 +351,15 @@ public class ServerResourceHandler implements Runnable {
         return parseStrElementV2(doc, sb.toString(), SelectorQuery);
     }
 
+    /**
+     *  функция разбора XML структуры и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
+     *  Логика  переопределения  содержимого тэгп находится в пакете "component"
+     *
+     * @param doc
+     * @param htmlText
+     * @param SelectorQuery
+     * @return
+     */
     public static String parseStrElementV2(Document doc, String htmlText, String SelectorQuery) {
         Document docForm = Jsoup.parse(htmlText);
         if (SelectorQuery.length() == 0) {

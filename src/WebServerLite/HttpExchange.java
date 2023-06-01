@@ -11,6 +11,9 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Класс хронения и обработки пользовательского запроса из браузера
+ */
 public class HttpExchange {
     public Socket socket;
     public HashMap<String, Object> headers = new HashMap<String, Object>();
@@ -68,9 +71,25 @@ public class HttpExchange {
         sendHtml(sb.toString());
     }
 
+    /**
+     * Функция отправки текстового ответа в браузер
+     *
+     * @param content
+     * @return
+     */
     public boolean write(String content) {
+        return write(content.getBytes(Charset.forName("UTF-8")));
+    }
+
+    /**
+     * Функция отправки битового ответа в браузер
+     *
+     * @param content
+     * @return
+     */
+    public boolean write(byte[] content) {
         try {
-            this.socket.getOutputStream().write(content.getBytes(Charset.forName("UTF-8")));
+            this.socket.getOutputStream().write(content);
             return true;
         } catch (IOException e) {
             return false;

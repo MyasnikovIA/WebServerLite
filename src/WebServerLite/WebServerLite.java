@@ -20,8 +20,6 @@ public class WebServerLite implements Runnable {
         } else if (args.length == 1) {
             ServerConstant.config = new ServerConstant(args[0]);
         }
-        // serverHome = ServerConstant.config.SERVER_HOM;
-
         server = new WebServerLite();
         Thread thread = new Thread(server);
         thread.start();
