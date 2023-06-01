@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<cmpDataset name="dsMyFun" query_type="java">
+    <import packet="org.json.JSONObject" path="json-20230227.jar"/>
+    <![CDATA[
+        vars.put("EDIT_TEXT2", vars.get("LPU_TEXT") + "---3453453453------");
+        System.out.println("--------!cmpDataset!--------");
+        JSONObject oneRow = new JSONObject();
+        oneRow.put("CONTACT","1111");
+        data.put(oneRow);
+        data.put((new JSONObject()).put("CONTACT","333333").put("TEXT","333333"));
+        data.put((new JSONObject()).put("CONTACT","444444").put("TEXT","444444"));
+        data.put((new JSONObject()).put("CONTACT","555555").put("TEXT","555555"));
+    ]]>
+    <var name="inpArg" src="inpArg" srctype="var"/>
+</cmpDataset>
+
+
+
+<cmpEdit name="ctrlEditText" value="1111111111"/>
+<cmpEdit name="EDIT_TEXT2" value="222222"/>
+
+<div cmptype="base" dataset="dsMyFun" repeat="0">
+    <cmpLabel data="caption:CONTACT"/>
+    <cmpLabel data="caption:TEXT"/>
+</div>
+
+<script>
+   setVar('inpArg', 'входящая переменная');
+   refreshDataSet('dsMyFun', function(data) {
+       console.log('---data---', D3Api.getDataset('dsMyFun'));
+   });
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<cmpDataset name="dsMyFun" query_type="java">
+    <import packet="org.json.JSONObject" path="json-20230227.jar"/>
+    <![CDATA[
+    vars.put("EDIT_TEXT2", vars.get("LPU_TEXT") + "---3453453453------");
+    System.out.println("--------!cmpDataset!--------");
+    JSONObject oneRow = new JSONObject();
+    oneRow.put("CONTACT","1111");
+    data.put(oneRow);
+    data.put((new JSONObject()).put("CONTACT","333333").put("TEXT","333333"));
+    data.put((new JSONObject()).put("CONTACT","444444").put("TEXT","444444"));
+    data.put((new JSONObject()).put("CONTACT","555555").put("TEXT","555555"));
+    ]]>
+    <var name="inpArg" src="inpArg" srctype="var"/>
+</cmpDataset>
+
+<cmpAction name="getNosRegisterID">
+    <![CDATA[
+    NOS_REGISTR := 'dddddddddddddddddddd';
+    LPU_TEXT := LPU;
+    EDIT_TEXT2 := 'Текст из БД';
+    EDIT_TEXT := 'Текст из БД 2';
+    ]]>
+    <cmpActionVar name="LPU"          src="LPU"            srctype="session"/>
+    <cmpActionVar name="LPU_TEXT"     src="LPU_TEXT"       srctype="var"  get="gLPU"/>
+    <cmpActionVar name="NOS_REGISTR"  src="varNOS_REGISTR" srctype="var"  put="pNOS_REGISTR" len="17"/>
+    <cmpActionVar name="EDIT_TEXT"    src="ctrlEditText"   srctype="ctrl" put="ctrlEditText" len="512" default="22222222"/>
+    <cmpActionVar name="EDIT_TEXT2"                        srctype="ctrl" put="ctrlEditText"/>
+</cmpAction>
+
+<cmpAction name="getNosRegisterID2" query_type="java">
+    <import packet="org.json.JSONObject" path="json-20230227.jar"/>
+    <![CDATA[
+    System.out.println("----dddddd----");
+    vars.put("EDIT_TEXT2", vars.get("LPU_TEXT")+"---345345345--*-*-*");
+    ]]>
+    <cmpActionVar name="LPU"          src="LPU"            srctype="session"/>
+    <cmpActionVar name="LPU_TEXT"     src="LPU_TEXT"       srctype="var"  get="gLPU"/>
+    <cmpActionVar name="NOS_REGISTR"  src="varNOS_REGISTR" srctype="var"  put="pNOS_REGISTR" len="17"/>
+    <cmpActionVar name="EDIT_TEXT"    src="ctrlEditText"   srctype="ctrl" put="ctrlEditText" len="512" default="22222222"/>
+    <cmpActionVar name="EDIT_TEXT2"                        srctype="ctrl" put="ctrlEditText"/>
+</cmpAction>
+
+<cmpEdit name="ctrlEditText" value="1111111111"/>
+<cmpEdit name="EDIT_TEXT2" value="222222"/>
+
+<div cmptype="base" dataset="dsMyFun" repeat="0">
+    <cmpLabel data="caption:CONTACT"/>
+    <cmpLabel data="caption:TEXT"/>
+</div>
+
+<script>
+   setVar('inpArg', 'входящая переменная');
+   refreshDataSet('dsMyFun', function(data) {
+       console.log('---data---', D3Api.getDataset('dsMyFun'));
+   });
+   setVar('LPU_TEXT', "fff111111");
+   executeAction('getNosRegisterID', function(vars) {
+        console.log('getVars()', getVars());
+        console.log('vars', vars);
+   });
+   executeAction('getNosRegisterID2', function(vars) {
+        console.log('getVars()', getVars());
+        console.log('vars', vars);
+   });
+
+</script>
+</body>
+</html>

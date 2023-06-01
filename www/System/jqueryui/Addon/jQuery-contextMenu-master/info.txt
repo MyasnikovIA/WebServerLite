@@ -1,0 +1,7 @@
+Ресурс проекта
+https://github.com/swisnl/jQuery-contextMenu
+
+Документация
+https://swisnl.github.io/jQuery-contextMenu/docs/html5-polyfill.html
+
+The MIT License

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<cmpAction name="getFormContent" query_type="java">
+    <![CDATA[
+        System.out.println("------");
+        System.out.println(" ok ");
+        vars.put("test", vars.get("form_params")+"111111");
+    ]]>
+    <cmpActionVar name="form_params"    src="form_params"/>
+    <cmpActionVar name="help_form"      src="help_form"     srctype="ctrl" put=""/>
+    <cmpActionVar name="error"          src="error"         srctype="var"  put=""/>
+    <cmpActionVar name="test"           src="test"          srctype="var"  put=""/>
+</cmpAction>
+
+
+<cmpLabel caption="dddddddddddddddddd: " /><br/>
+<cmpEdit name="userName2" label="--editxcvbxcvbxcvbxcvbxcvbcxv2--"  width="200"/>
+
+<cmpComboBox label="выбор" name="ctrlComboText3" onchange="console.log(this);" width="300" >
+    <items caption="text1" value="1" />
+    <items caption="text2" value="2" />
+    <items caption="text3" value="3" />
+</cmpComboBox>
+
+<cmpTextarea name="t1" value="sdfgsdfgsdf"/>
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<cmpTabs label="выбор" name="tab" onchange="console.log(D3Api.getValue('ctrlAcordion'));" height="30%" width="50%">
+    <items caption="text1">
+            111111111111
+        <cmpLabel caption="test CTRL"/>
+    </items>
+    <items caption="text2">
+        <cmpEdit name="v2_edit" label=" текст в другой вкладке -edit2--"/>
+    </items>
+    <items caption="text3">
+       афывафывафывафывафывафыв
+    </items>
+</cmpTabs>
+
+
+
+<cmpAccordion label="выбор" name="ctrlAcordion" onchange="console.log(D3Api.getValue('ctrlAcordion'));" height="30%" width="50%" left="30%" top="100px">
+    <items caption="text1">
+        111111111111
+        <cmpLabel caption="test CTRL"/>
+    </items>
+    <items caption="text2">
+        <cmpEdit name="v2_edit" label=" текст в другой вкладке -edit2--"/>
+    </items>
+    <items caption="text3">
+        афывафывафывафывафывафыв
+    </items>
+</cmpAccordion>
+
+<cmpEdit name="userName4" label="--editxcvbxcvbxcvbxcvbxcvbcxv2--"  width="500"/>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+
+
+<!--
+<link rel="stylesheet" href="https://snipp.ru/cdn/leaflet/1.7.1/leaflet.css">
+<script src="https://snipp.ru/cdn/leaflet/1.7.1/leaflet.js"></script>
+-->
+
+<link rel="stylesheet" href="/System/leaflet/leaflet.css">
+<script src="/System/leaflet/leaflet.js"></script>
+
+<div id="map2222" style="width:50%; height:50%;">
+    <script>
+    L.Control.prototype._refocusOnMap = function _refocusOnMap(ev) {
+        if (this._map && ev && ev.screenX > 0 && ev.screenY > 0) {
+            this._map.getContainer().focus({ preventScroll: true });
+        }
+    };
+
+    var map = L.map('map2222', {
+        center: [38.89, -77.03],
+        zoom: 5,
+        minZoom: 1,
+        maxZoom: 18
+    });
+
+    var tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var marker = L.marker([38.89, -77.03]).addTo(map);
+    </script>
+</div>
+
+
+</body>
+</html>

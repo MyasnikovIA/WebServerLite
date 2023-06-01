@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>EventSource.java</title>
+</head>
+<body>
+<div id="list"></div>
+<script>
+    const dev = 'sensor_udp';
+    const evtSource = new EventSource(`EventSource.java?dev=${dev}&delay=1000`, { withCredentials: true } );
+    evtSource.onmessage = (event) => {
+        const newElement = document.createElement('li');
+        const eventList = document.getElementById('list');
+        newElement.textContent = `message: ${event.data}`;
+        eventList.appendChild(newElement);
+    }
+    evtSource.addEventListener(dev, (event) => {
+        const eventList = document.getElementById('list');
+        eventList.innerHTML = event.data;
+        var objData = JSON.parse(event.data)
+        console.log('objData',objData)
+    });
+    evtSource.onerror = (err) => {
+        console.error('EventSource failed:', err);
+    };
+</script>
+</body>
+</html>
