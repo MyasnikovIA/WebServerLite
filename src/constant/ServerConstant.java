@@ -9,11 +9,6 @@ import java.util.*;
 public final class ServerConstant {
 
     public static ServerConstant config;
-    // ServerConstant.config.INDEX_PAGE;
-    // ServerConstant.config.LOGIN_PAGE;
-    // ServerConstant.config.LIB_DIR;
-    // ServerConstant.config.LIB_JAR;
-    // ServerConstant.config.APP_NAME;
 
     public ServerConstant(String pathIniConfig) {
         StringBuffer sb = new StringBuffer();
@@ -87,7 +82,7 @@ public final class ServerConstant {
             }
         }
         if (jsonIni.has("MIME_MAP")) {
-            this.MIME_MAP.clear();
+            // this.MIME_MAP.clear(); // очистка предзаполненного списка mime типов
             JSONObject jsonObject = jsonIni.getJSONObject("MIME_MAP");
             Iterator<String> keys = jsonObject.keys();
             while (keys.hasNext()) {
@@ -95,7 +90,6 @@ public final class ServerConstant {
                 MIME_MAP.put(key, jsonObject.getString(key));
             }
         }
-        System.out.println("this.WEBAPP_DIR "+this.WEBAPP_DIR);
         if (this.WEBAPP_DIR.indexOf('/') == -1) {
             this.WEBAPP_DIR = this.SERVER_HOM+'/'+ this.WEBAPP_DIR;
         }
@@ -222,8 +216,6 @@ public final class ServerConstant {
         MIME_MAP.put("txt", "text/plain");
         MIME_MAP.put("php", "text/plain");
         MIME_MAP.put("ts", "video/mp2t");
-    }
-
-    ;
+    };
 
 }

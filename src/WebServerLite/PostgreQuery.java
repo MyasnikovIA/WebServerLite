@@ -169,7 +169,7 @@ public class PostgreQuery {
     }
 
     /**
-     * Вызоз  процедуры из Postgre (демонстрация УДАЛИТЬ)
+     * Вызов  процедуры из Postgre (демонстрация УДАЛИТЬ)
      * @param conn
      */
     public void collProcedure(Connection conn) {

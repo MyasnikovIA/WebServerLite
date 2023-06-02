@@ -9,10 +9,8 @@ import java.util.logging.Logger;
 
 public class WebServerLite implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(WebServerLite.class.getName());
-    public static JavaStrExecut javaExec = new JavaStrExecut();
-
     private static WebServerLite server;
-    private boolean isRunServer = false;
+    private static boolean isRunServer = false;
 
     public static void start(String[] args) {
         if (args.length == 0) {
@@ -32,7 +30,7 @@ public class WebServerLite implements Runnable {
     }
 
     public static void stop(int delay) {
-
+        isRunServer = false;
     }
 
     @Override
@@ -49,7 +47,9 @@ public class WebServerLite implements Runnable {
             System.out.println("port:"+port);
             ServerSocket ss = new ServerSocket(port);
             while (isRunServer == true) {
+                // ждем новое подключение Socket клиента
                 Socket socket = ss.accept();
+                // Запускаем обработку нового соединение в паралельном потоке и ждем следующее соединение
                 new Thread(new ServerResourceHandler(socket, pathRoot, ServerConstant.config.GZIPPABLE, ServerConstant.config.CAHEBLE)).start();
             }
         } catch (Exception ex) {

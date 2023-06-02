@@ -97,10 +97,19 @@ public class HttpExchange {
         }
     }
 
+    /**
+     * Отправка текстового ответа в браузер
+     * @param content
+     */
     public void sendHtml(String content) {
         sendHtml(content.getBytes(Charset.forName("UTF-8")));
     }
 
+
+    /**
+     * Отправка битового ответа в браузер
+     * @param content
+     */
     public void sendHtml(byte[] content) {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());

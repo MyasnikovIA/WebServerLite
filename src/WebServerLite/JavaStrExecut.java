@@ -24,15 +24,18 @@ public class JavaStrExecut {
 
 
     /**
-     * Места хронения скомпелированных классов и созданных экземпляров классов (CompileObject)
+     * Места хронения скомпелированных классов и созданных экземпляров классов (CompileObject) по хэш коду класса
      */
     public static HashMap<String, Object> InstanceClassHash = new HashMap<>();
 
-
+    /**
+     * Места хронения скомпелированных классов и созданных экземпляров классов (CompileObject) по читаемому имени класса
+     */
     public static HashMap<String, Object> InstanceClassName = new HashMap<>();
 
+
     /**
-     * Объект компилируемого класса
+     * Объект компилируемого класса (используется для хронения скомпелированных классов)
      */
     private class CompileObject {
         Class<?> ClassNat = null;     // объект класса, по которому будет создан экземпляр класса
@@ -326,7 +329,6 @@ public class JavaStrExecut {
                 query.sendHtml(messageBytes);
             } else {
                 // Если при компиляции произошла ошибка, тогда отправляем подробности клиенту в браузер
-
                 query.mimeType = "text/plain";
                 query.mimeType = "text/html";
                 query.sendHtml(parseErrorCompile(infoCompile));
@@ -337,6 +339,11 @@ public class JavaStrExecut {
         }
     }
 
+    /**
+     * Функция разбора ошибки компиляции и визуализации в виде HTML страницы
+     * @param infoCompile
+     * @return
+     */
     public static String parseErrorCompile( JSONObject infoCompile ){
         StringBuffer message = new StringBuffer("HTTP error compile Java file:");
         String srcCode = infoCompile.getString("src");
@@ -416,7 +423,6 @@ public class JavaStrExecut {
     public void runJavaServerlet(HttpExchange query) {
         String classNameCmp = "component." + query.requestPath.split("component}/")[1];
         try {
-            System.out.println("classNameCmp "+classNameCmp);
             String uriStr = query.requestPath;
             Class[] argTypes = new Class[]{HttpExchange.class};
             Class<?> classServerlet = Class.forName(classNameCmp);
@@ -446,11 +452,11 @@ public class JavaStrExecut {
         if (info == null) info = new JSONObject();
         if (jarResourse == null) jarResourse = new ArrayList<>();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diacol = new DiagnosticCollector<JavaFileObject>();
+        DiagnosticCollector<JavaFileObject> diacol = new DiagnosticCollector<JavaFileObject>(); // Объект в котором  хрониться  информация о процессе компиляции
         StandardJavaFileManager standartFileManager = compiler.getStandardFileManager(diacol, null, null);
         SpecialJavaFileManager fileManager = new SpecialJavaFileManager(standartFileManager, classLoader);
         List<String> optionList = new ArrayList<String>();
-        // optionList.addAll(Arrays.asList("-classpath", "D:\\JavaProject\\HttpServer-JAVA\\lib\\json-20230227.jar"));
+        // optionList.addAll(Arrays.asList("-classpath", "D:\\JavaProject\\HttpServer-JAVA\\lib\\json-20230227.jar;asdasdasd;"));
         for (String libJaR : ServerConstant.config.LIB_JAR) {
             if (libJaR.indexOf(File.separator) == -1) {
                 jarResourse.add(libJaR);
@@ -464,7 +470,7 @@ public class JavaStrExecut {
             File file = new File(ServerConstant.config.LIB_DIR + File.separator + key);
             if (file.exists()) {
                 libList.append(";");
-                libList.append(file.getAbsolutePath());
+                libList.append(file.getAbsolutePath()); // подключаем путь располежения библиотек из конфигурационного файла
             }
         }
         optionList.addAll(Arrays.asList("-classpath", libList.toString()));
@@ -511,36 +517,18 @@ public class JavaStrExecut {
      */
     public static String getMd5Hash(String input) {
         try {
-            // Get instance of MessageDigest with "MD5" algorithm
             MessageDigest md = MessageDigest.getInstance("MD5");
-            // Generate the hash value of the input
             byte[] digest = md.digest(input.getBytes());
-            // Convert the hash value from bytes to hex format
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            // This should never happen since "MD5" is a valid algorithm
             e.printStackTrace();
             return null;
         }
     }
-
-    public void compileTest(String classNameText, String requestPath) {
-        String sourceCode = "public class HelloWorld { public static void main(String[] args) {System.out.println(\"Hello World\");}}";
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        int result = compiler.run(null, null, null, sourceCode);
-        if (result == 0) {
-            System.out.println("Compilation successful");
-        } else {
-            System.out.println("Compilation failed");
-        }
-
-    }
-
-
 }
 
 /**
