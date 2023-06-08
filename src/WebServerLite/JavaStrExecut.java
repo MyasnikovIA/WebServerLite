@@ -185,11 +185,12 @@ public class JavaStrExecut {
 
     /**
      * Проверка наличия скомпелированного файла в памяти приложения
+     *
      * @param name
      * @return
      */
     public boolean existJavaFunction(String name) {
-          return InstanceClassName.containsKey(name);
+        return InstanceClassName.containsKey(name);
     }
 
     public boolean compile(String name, String code, JSONObject info) {
@@ -340,11 +341,63 @@ public class JavaStrExecut {
     }
 
     /**
+     * Запуск обработки запроса терминала JAVA
+     *
+     * @param query
+     */
+    public boolean runJavaTerminalFile(HttpExchange query) {
+        JSONObject infoCompile = new JSONObject();
+        try {
+            System.out.println("query.requestPath " + query.requestPath);
+            System.out.println("ServerConstant.config.WEBAPP_DIR " + ServerConstant.config.WEBAPP_DIR);
+            if (compileFile(ServerConstant.config.WEBAPP_DIR, query.requestPath, infoCompile)) {
+                query.mimeType = "text/html";
+                CompileObject compileObject = (CompileObject) InstanceClassName.get(query.requestPath);
+                Class[] argTypes = new Class[]{HttpExchange.class};
+                Method meth = compileObject.ClassNat.getMethod("onTerminal", argTypes);   // получаем метод по имени и типам входящих переменных
+                byte[] messageBytes = (byte[]) meth.invoke(compileObject.ObjectInstance, query); // запуск метода на выполнение
+                if (messageBytes == null)
+                    return true;                                                      // если возвращается NULL тогда ничего отправлять ненадо
+                query.write(messageBytes);
+            } else {
+                // Если при компиляции произошла ошибка, тогда отправляем подробности клиенту в браузер
+                query.mimeType = "text/plain";
+                System.out.println("ERROR compile  " + infoCompile);
+                query.write(parseErrorCompileTerminal(infoCompile) + "\r\n");
+            }
+            return true;                                                      // если возвращается NULL тогда ничего отправлять ненадо
+        } catch (Exception e) {
+            query.write(e.toString());
+            return false;                                                      // если возвращается NULL тогда ничего отправлять ненадо
+        }
+    }
+
+    public static String parseErrorCompileTerminal(JSONObject infoCompile) {
+        StringBuffer message = new StringBuffer("HTTP error compile Java file:");
+        message.append("\r\n");
+        if (infoCompile.has("ERROR")) {
+            JSONArray arrError = infoCompile.getJSONArray("ERROR");
+            message.append("Found ");
+            message.append(arrError.length());
+            message.append(" error.\r\n");
+            for (int i = 0; i < arrError.length(); i++) {
+                JSONObject objError = arrError.getJSONObject(i);
+                if (objError.has("ErrorString")) {
+                    message.append(objError.getString("ErrorString"));
+                    message.append("\r\n");
+                }
+            }
+        }
+        return message.toString().replace("\n","\r\n");
+    }
+
+    /**
      * Функция разбора ошибки компиляции и визуализации в виде HTML страницы
+     *
      * @param infoCompile
      * @return
      */
-    public static String parseErrorCompile( JSONObject infoCompile ){
+    public static String parseErrorCompile(JSONObject infoCompile) {
         StringBuffer message = new StringBuffer("HTTP error compile Java file:");
         String srcCode = infoCompile.getString("src");
         StringBuffer dstError = new StringBuffer();

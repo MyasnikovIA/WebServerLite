@@ -106,8 +106,12 @@ public class ServerResourceHandler implements Runnable {
             if (indLine == 1) {
                 if (titleLine.indexOf("GET /") != -1) {
                     titleLine = titleLine.replaceAll("GET /", "");
+                    query.typeQuery = "GET";
                 } else if (titleLine.indexOf("POST /") != -1) {
                     titleLine = titleLine.replaceAll("GET /", "");
+                } else if (titleLine.indexOf("TERM /") != -1) {
+                    titleLine = titleLine.replaceAll("TERM /", "");
+                    query.typeQuery = "TERM";
                 }
                 if (titleLine.indexOf(" HTTP/") != -1) {
                     titleLine = titleLine.substring(0, titleLine.length() - (titleLine.substring(titleLine.lastIndexOf(" HTTP/"))).length());
@@ -157,8 +161,24 @@ public class ServerResourceHandler implements Runnable {
             }
         }
         query.session = getSession(query);
+        if (query.typeQuery.toUpperCase().equals("TERM")) { // Обработка запроса с терминала
+            sendResponseTerminal();
+            return false;
+        }
         query.mimeType = getFileMime(query.requestPath);
         return true;
+    }
+
+    /**
+     * Обработать запрос из Socket клиента
+     */
+    private void sendResponseTerminal() {
+        // обработка запроса bp
+        while (query.socket.isConnected()) {
+            String message = query.read();
+            if ((message == null) ||(message.trim().toLowerCase().equals("exit"))) break;
+            if (!javaStrExecut.runJavaTerminalFile(query)) break;
+        }
     }
 
     /**
@@ -251,6 +271,7 @@ public class ServerResourceHandler implements Runnable {
 
     /**
      * Получить объект сесси по ID
+     *
      * @param sessionKey
      * @return
      */
@@ -263,6 +284,7 @@ public class ServerResourceHandler implements Runnable {
 
     /**
      * Получении (генерация) сесси по запросу брайзера
+     *
      * @param httpExchange
      * @return
      */
@@ -324,8 +346,9 @@ public class ServerResourceHandler implements Runnable {
 
 
     /**
-     *  функция разбора собформы XML и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
-     *  Логика  переопределения  содержимого тэгп находится в пакете "component"
+     * функция разбора собформы XML и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
+     * Логика  переопределения  содержимого тэгп находится в пакете "component"
+     *
      * @param doc
      * @param path
      * @param SelectorQuery
@@ -352,8 +375,8 @@ public class ServerResourceHandler implements Runnable {
     }
 
     /**
-     *  функция разбора XML структуры и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
-     *  Логика  переопределения  содержимого тэгп находится в пакете "component"
+     * функция разбора XML структуры и замены специализированных тэгов, которые начинаются с текста "cmpXXXXXX"
+     * Логика  переопределения  содержимого тэгп находится в пакете "component"
      *
      * @param doc
      * @param htmlText

@@ -5,9 +5,8 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -28,8 +27,15 @@ public class HttpExchange {
     public String requestText = "";
     public String requestPath = "";
     public byte[] postBody = null;
-
     public JSONObject requestParam = new JSONObject();
+
+    public String message = ""; // хронит текст сообщения от Socket клиента
+    public JSONObject messageJson = new JSONObject();
+    ; // хронит текст сообщения от Socket клиента
+    public int countQuery = 0;
+    public static HashMap<String, HttpExchange> DevList = new HashMap<String, HttpExchange>(10, (float) 0.5);
+    public static HashMap<String, String> MESSAGE_LIST = new HashMap<String, String>(10, (float) 0.5);
+    public static HashMap<String, ArrayList<String>> BROADCAST_MESSAGE_LIST = new HashMap<String, ArrayList<String>>(10, (float) 0.5);
 
     public HttpExchange(Socket socket, HashMap<String, Object> session) throws IOException, JSONException {
         this.socket = socket;
@@ -45,6 +51,15 @@ public class HttpExchange {
         }
         socket.close();
         socket = null;
+    }
+
+    public boolean isConnected() {
+        try {
+            return (inputStreamReader.read() != -1);
+        } catch (IOException e) {
+            return false;
+        }
+        //  return socket.isConnected();
     }
 
     public HashMap<String, Object> getRequestHeaders() {
@@ -81,6 +96,77 @@ public class HttpExchange {
         return write(content.getBytes(Charset.forName("UTF-8")));
     }
 
+    public boolean write(int content) {
+        return write(content);
+
+    }
+
+    public int readInt() {
+        try {
+            return inputStreamReader.read();
+        } catch (IOException e) {
+            return -2;
+        }
+    }
+
+    /**
+     * Функция ожидания данных от клиента
+     *
+     * @return
+     */
+    public String read() {
+        StringBuffer sbSub2 = new StringBuffer();
+        int subcharInt = -1;
+        int countEnter = 0;
+        int subcharIntLast = 0;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try {
+            while (true) {
+                if (!((subcharInt = inputStreamReader.read()) != -1)) break;
+                if (subcharInt == 0) break;
+                if (((subcharInt == 13) && (subcharIntLast == 13))
+                        || ((subcharInt == 10) && (subcharIntLast == 10))
+                        || ((subcharInt == 13) && (subcharIntLast == 10))
+                        || ((subcharInt == 10) && (subcharIntLast == 13))
+                ) {
+                    countEnter += 1;
+                    if (countEnter == 2) {
+                        break; // чтение окончено
+                    }
+                } else {
+                    countEnter = 0;
+                }
+                sbSub2.append((char) subcharInt);
+                buffer.write(subcharInt);
+                subcharIntLast = subcharInt;
+            }
+        } catch (IOException e) {
+            return null;
+            //throw new RuntimeException(e);
+        }
+        countQuery++;
+        postBody = buffer.toByteArray();
+        message = sbSub2.toString();
+        if (message.indexOf(":") != -1) {
+            for (String titleLine : message.split("\r")) {
+                System.out.println("titleLine|" + titleLine);
+                titleLine = titleLine.replace("\n", "");
+                if (titleLine.indexOf(":") != -1) {
+                    String key = titleLine.substring(0, titleLine.indexOf(":")).trim();
+                    String val = titleLine.substring(titleLine.indexOf(":") + 1).trim();
+                    messageJson.put(key, val);
+                    headers.put(key, val);
+                }
+            }
+        }
+        sbSub2.setLength(0);
+        buffer.reset();
+        if (subcharInt == -1) {
+            return null;
+        }
+        return message;
+    }
+
     /**
      * Функция отправки битового ответа в браузер
      *
@@ -99,6 +185,7 @@ public class HttpExchange {
 
     /**
      * Отправка текстового ответа в браузер
+     *
      * @param content
      */
     public void sendHtml(String content) {
@@ -108,6 +195,7 @@ public class HttpExchange {
 
     /**
      * Отправка битового ответа в браузер
+     *
      * @param content
      */
     public void sendHtml(byte[] content) {
