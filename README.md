@@ -3,6 +3,9 @@ Java WebServer
 
 Для работы необходимо иметь OpenJDK-20
 
+https://youtu.be/UM-oBsnyBFM
+
+
 <br/>[Настройка сервера (config.ini)](docs%2Fserver-constant.md)
 <br/>[Создание страницы из JAVA класса](docs%2Fweb_page_java.md)
 <br/>[Описание компонентов(фрагментов кода)](docs%2Fcomponent.md)
