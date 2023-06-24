@@ -26,7 +26,7 @@ public class ServerResourceHandler implements Runnable {
     public static JavaStrExecut javaStrExecut = new JavaStrExecut(); // класс для компиляции Java кода из текста
     private HttpExchange query;  // объект пользовательского запроса
 
-    public ServerResourceHandler(Socket socket, String pathToRoot, boolean gzippable, boolean cacheable) throws IOException, JSONException {
+    public ServerResourceHandler(Socket socket, String pathToRoot, String pathSystemToRoot, boolean gzippable, boolean cacheable) throws IOException, JSONException {
         query = new HttpExchange(socket, null);
     }
 
@@ -197,33 +197,46 @@ public class ServerResourceHandler implements Runnable {
         } else if ("component".equals(ext)) {
             // исправить
             ServerResourceHandler.javaStrExecut.runJavaComponent(query);
-        } else if (file.exists()) {
-            String lastModified = String.valueOf(new Date(file.lastModified()));
-            if ("java".equals(ext)) {
-                ServerResourceHandler.javaStrExecut.runJavaFile(query);
-            } else {
-                Resource res = null;
-                if (!ServerConstant.config.DEBUG) { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
-                    // Если ресурс не был ранее прочитан, или дата модификации была изменена, тогда читаем ресурс снова
-                    if ((resources.get(resourcePath) == null) || !resourcesDateTime.get(resourcePath).equals(lastModified)) {
-                        res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
-                        resources.put(resourcePath, res);
-                        resourcesDateTime.put(resourcePath, lastModified);
-                    } else {
-                        // иначе вытаскиваем ранее прочитанную версию
-                        res = resources.get(resourcePath);
-                    }
-                } else {
-                    // если включена отладка, тогда перечитываем ресурс каждый раз при обращении
-                    res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
-                }
-                // query.mimeType = mimeType;
-                query.mimeType = "text/html";
-                query.sendHtml(res.content);
-            }
         } else {
-            query.mimeType = "text/html";
-            query.sendFile(ServerConstant.config.WEBAPP_DIR + "/" + ServerConstant.config.PAGE_404);
+            if (!file.exists()) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
+                resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
+                file = new File(resourcePath);
+            }
+            if (file.exists()) {
+                String lastModified = String.valueOf(new Date(file.lastModified()));
+                if ("java".equals(ext)) {
+                    ServerResourceHandler.javaStrExecut.runJavaFile(query);
+                } else {
+                    Resource res = null;
+                    if (!ServerConstant.config.DEBUG) { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
+                        // Если ресурс не был ранее прочитан, или дата модификации была изменена, тогда читаем ресурс снова
+                        if ((resources.get(resourcePath) == null) || !resourcesDateTime.get(resourcePath).equals(lastModified)) {
+                            res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
+                            resources.put(resourcePath, res);
+                            resourcesDateTime.put(resourcePath, lastModified);
+                        } else {
+                            // иначе вытаскиваем ранее прочитанную версию
+                            res = resources.get(resourcePath);
+                        }
+                    } else {
+                        // если включена отладка, тогда перечитываем ресурс каждый раз при обращении
+                        res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
+                    }
+                    // query.mimeType = mimeType;
+                    query.mimeType = "text/html";
+                    query.sendHtml(res.content);
+                }
+            } else {
+                // Если ресурс не найден, тогда отправляем пустую страницу с сообщением "Page not found"
+                query.mimeType = "text/html";
+                if (new File(ServerConstant.config.WEBAPP_DIR + "/" + ServerConstant.config.PAGE_404).exists()) {
+                    query.sendFile(ServerConstant.config.WEBAPP_DIR + "/" + ServerConstant.config.PAGE_404);
+                } else if (new File(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404).exists()) {
+                    query.sendFile(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404);
+                } else {
+                    query.sendFile("Page not found");
+                }
+            }
         }
     }
 

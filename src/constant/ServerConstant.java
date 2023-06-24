@@ -1,9 +1,13 @@
 package constant;
 
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 public final class ServerConstant {
@@ -47,6 +51,7 @@ public final class ServerConstant {
         if (jsonIni.has("FORWARD_DOUBLE_SLASH")) this.FORWARD_DOUBLE_SLASH = jsonIni.getString("FORWARD_DOUBLE_SLASH");
         if (jsonIni.has("COMPONENT_PATH")) this.COMPONENT_PATH = jsonIni.getString("COMPONENT_PATH");
         if (jsonIni.has("WEBAPP_DIR")) this.WEBAPP_DIR = jsonIni.getString("WEBAPP_DIR");
+        if (jsonIni.has("WEBAPP_SYSTEM_DIR")) this.WEBAPP_SYSTEM_DIR = jsonIni.getString("WEBAPP_SYSTEM_DIR");
         if (jsonIni.has("DEFAULT_HOST")) this.DEFAULT_HOST = jsonIni.getString("DEFAULT_HOST");
         if (jsonIni.has("DEFAULT_PORT")) this.DEFAULT_PORT = jsonIni.getString("DEFAULT_PORT");
         if (jsonIni.has("SERVER_HOM")) this.SERVER_HOM = jsonIni.getString("SERVER_HOM");
@@ -60,6 +65,9 @@ public final class ServerConstant {
         if (jsonIni.has("CONTENT_ENCODING")) this.CONTENT_ENCODING = jsonIni.getString("CONTENT_ENCODING");
         if (jsonIni.has("ENCODING_GZIP")) this.ENCODING_GZIP = jsonIni.getString("ENCODING_GZIP");
         if (jsonIni.has("ENCODING_UTF8")) this.ENCODING_UTF8 = jsonIni.getString("ENCODING_UTF8");
+        if (jsonIni.has("GIT_MASTER")) this.GIT_MASTER = jsonIni.getString("GIT_MASTER");
+        if (jsonIni.has("GIT_URL")) this.GIT_URL = jsonIni.getString("GIT_URL");
+        if (jsonIni.has("GIT_INTERVAL")) this.GIT_INTERVAL = jsonIni.getString("GIT_INTERVAL");
         if (jsonIni.has("LIB_CSS")) {
             this.LIB_CSS.clear();
             Iterator iterator = jsonIni.getJSONArray("LIB_CSS").iterator();
@@ -91,9 +99,58 @@ public final class ServerConstant {
             }
         }
         if (this.WEBAPP_DIR.indexOf('/') == -1) {
-            this.WEBAPP_DIR = this.SERVER_HOM+'/'+ this.WEBAPP_DIR;
+            this.WEBAPP_DIR = this.SERVER_HOM + '/' + this.WEBAPP_DIR;
         }
-        System.out.println("this.WEBAPP_DIR "+this.WEBAPP_DIR);
+        if (this.GIT_URL.length() > 0) {
+            Runnable r = ()-> {
+                while (true) {
+                    if (gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR)) {
+                        System.out.println("PULL прошел успешно");
+                    } else {
+                        System.out.println("в процессе PULL произашла ошибка");
+                    };
+                    try {
+                        Thread.sleep(Integer.valueOf(this.GIT_INTERVAL+"000")); // ждем  и повторяем проверку изменений
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            Thread gitCloneThread = new Thread(r,"git_Clone_Thread");
+            gitCloneThread.start();
+        }
+    }
+
+    public static boolean gitClone(String gitUrl,String master, String localPath) {
+        try {
+            File localFile =  new File(localPath);
+            if (!localFile.exists()) { // если каталога нет, тогда создаем его
+                if (!localFile.mkdirs()) {
+                    return false;
+                }
+            }
+            File localGitFile =  new File(localPath + "/.git");
+            if (localGitFile.exists()) { // Если репозиторий уже существует, тогда стягиваем изменения
+                Git git = Git.open(localFile);
+                git.pull().call();
+                return true;
+            }
+            Git.cloneRepository().setURI(gitUrl).setDirectory(new File(localPath)).call();
+            // Открыть локальный репозиторий
+            Repository repository = new FileRepositoryBuilder().setGitDir(localGitFile).build();
+            // Checkout the master branch
+            Git git = new Git(repository);
+            if (master.length() > 0) {
+                // Переключить ветку
+                git.checkout().setName(master).call();
+            }
+            // Стянуть все изменения
+            git.pull().call();
+        } catch (GitAPIException | IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public static String DATABASE_NAME = "jdbc:postgresql://your_host:your_port/your_database"; // путь к БД
@@ -112,8 +169,12 @@ public final class ServerConstant {
     public static String FORWARD_DOUBLE_SLASH = "//";
     public static String COMPONENT_PATH = "component"; // путь к хранению компонентов, для динамического переключения между стилями и реализациями
     public static String WEBAPP_DIR = "www"; // путь к статичным ресурсам сервера
+
+    public static String WEBAPP_SYSTEM_DIR = "www"; // путь к статичным ресурсам системы сервера
+
     public static String DEFAULT_HOST = "0.0.0.0";
     public static String DEFAULT_PORT = "8081"; // порт на котором будет работать сервер
+
     //public static  String SERVER_HOM = "D:\\JavaProject\\HttpServer-JAVA-"; //  домашний каталог сервера
     public static String SERVER_HOM = "/data/data/com.termux/files/home2"; //  домашний каталог сервера
     public static String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -127,7 +188,9 @@ public final class ServerConstant {
     public static String CONTENT_ENCODING = "Content-Encoding";
     public static String ENCODING_GZIP = "gzip";
     public static String ENCODING_UTF8 = "UTF-8";
-
+    public static String GIT_URL = "";
+    public static String GIT_MASTER = "";
+    public static String GIT_INTERVAL = "120"; // порт на котором будет работать сервер
 
     public static List<String> LIB_CSS = new ArrayList<>();
 
@@ -176,12 +239,14 @@ public final class ServerConstant {
     }
 
     public static List<String> LIB_JAR = new ArrayList<>();
+
     static {
         // JSONObject
         // JSONOArray
         LIB_JAR.add("json-20230227.jar"); // подключаемые обязательных JAR библиотек для компиляции кода из строк
         // LIB_JS.add("/path/to/file/lib/json-20230227.jar");
     }
+
     public static Map<String, String> MIME_MAP = new HashMap<>();
 
     static {
@@ -216,6 +281,8 @@ public final class ServerConstant {
         MIME_MAP.put("txt", "text/plain");
         MIME_MAP.put("php", "text/plain");
         MIME_MAP.put("ts", "video/mp2t");
-    };
+    }
+
+    ;
 
 }
