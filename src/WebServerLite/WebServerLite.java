@@ -35,20 +35,7 @@ public class WebServerLite implements Runnable {
 
     @Override
     public void run() {
-        String pathRoot = "";
-        String pathSystemRoot = "";
         int port = Integer.parseInt(ServerConstant.config.DEFAULT_PORT);
-        if (ServerConstant.config.WEBAPP_DIR.indexOf('/') == -1) {
-            pathRoot = ServerConstant.config.SERVER_HOM + ServerConstant.config.FORWARD_SINGLE_SLASH + ServerConstant.config.WEBAPP_DIR;
-        } else {
-            pathRoot = ServerConstant.config.WEBAPP_DIR;
-        }
-        if (ServerConstant.config.WEBAPP_SYSTEM_DIR.indexOf('/') == -1) {
-            pathSystemRoot = ServerConstant.config.SERVER_HOM + ServerConstant.config.FORWARD_SINGLE_SLASH + ServerConstant.config.WEBAPP_SYSTEM_DIR;
-        } else {
-            pathSystemRoot = ServerConstant.config.WEBAPP_SYSTEM_DIR;
-        }
-
         try {
             isRunServer = true;
             System.out.println("port:"+port);
@@ -57,7 +44,7 @@ public class WebServerLite implements Runnable {
                 // ждем новое подключение Socket клиента
                 Socket socket = ss.accept();
                 // Запускаем обработку нового соединение в паралельном потоке и ждем следующее соединение
-                new Thread(new ServerResourceHandler(socket, pathRoot, pathSystemRoot, ServerConstant.config.GZIPPABLE, ServerConstant.config.CAHEBLE)).start();
+                new Thread(new ServerResourceHandler(socket)).start();
             }
         } catch (Exception ex) {
             Logger.getLogger(WebServerLite.class.getName()).log(Level.SEVERE, null, ex);

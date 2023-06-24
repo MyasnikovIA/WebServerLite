@@ -26,7 +26,7 @@ public class ServerResourceHandler implements Runnable {
     public static JavaStrExecut javaStrExecut = new JavaStrExecut(); // класс для компиляции Java кода из текста
     private HttpExchange query;  // объект пользовательского запроса
 
-    public ServerResourceHandler(Socket socket, String pathToRoot, String pathSystemToRoot, boolean gzippable, boolean cacheable) throws IOException, JSONException {
+    public ServerResourceHandler(Socket socket) throws IOException, JSONException {
         query = new HttpExchange(socket, null);
     }
 
