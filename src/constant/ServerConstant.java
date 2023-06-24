@@ -102,18 +102,30 @@ public final class ServerConstant {
             this.WEBAPP_DIR = this.SERVER_HOM + '/' + this.WEBAPP_DIR;
         }
         if (this.GIT_URL.length() > 0) {
+            gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR); // клонируем git каталог для раздачи
             Runnable r = ()-> {
                 while (true) {
-                    if (gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR)) {
-                        System.out.println("PULL прошел успешно");
-                    } else {
-                        System.out.println("в процессе PULL произашла ошибка");
-                    };
                     try {
                         Thread.sleep(Integer.valueOf(this.GIT_INTERVAL+"000")); // ждем  и повторяем проверку изменений
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    if (gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR)) {
+                        System.out.println("====================================");
+                        System.out.println("PULL успешно:");
+                        System.out.println(this.GIT_URL);
+                        System.out.println(this.WEBAPP_DIR);
+                        System.out.println("====================================");
+                        System.out.println();
+                    } else {
+                        System.out.println("====================================");
+                        System.out.println("В процессе PULL произашла ошибка:");
+                        System.out.println(this.GIT_URL);
+                        System.out.println(this.WEBAPP_DIR);
+                        System.out.println("====================================");
+                        System.out.println();
+                    };
+
                 }
             };
             Thread gitCloneThread = new Thread(r,"git_Clone_Thread");
