@@ -185,19 +185,19 @@ public class ServerResourceHandler implements Runnable {
      * процедура отправки ответа клиенту (браузеру)
      */
     private void sendResponseQuery() {
-        String resourcePath = ServerConstant.config.WEBAPP_DIR + "/" + query.requestPath;
         String mimeType = getFileMime(query.requestPath);
-        String ext = getFileExt(resourcePath).toLowerCase();
+        String ext = getFileExt(query.requestPath).toLowerCase();
         if (query.requestParam.has("debug")) {
             ServerConstant.config.DEBUG = query.requestParam.getString("debug").equals("1");
         }
-        File file = new File(resourcePath);
         if (query.requestPath.indexOf("{component}") != -1) {
             ServerResourceHandler.javaStrExecut.runJavaServerlet(query);
         } else if ("component".equals(ext)) {
             // исправить
             ServerResourceHandler.javaStrExecut.runJavaComponent(query);
         } else {
+            String resourcePath = ServerConstant.config.WEBAPP_DIR + "/" + query.requestPath;
+            File file = new File(resourcePath);
             if (!file.exists()) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
                 file = new File(resourcePath);

@@ -239,7 +239,6 @@ public final class ServerConstant {
     }
 
     public static List<String> LIB_JAR = new ArrayList<>();
-
     static {
         // JSONObject
         // JSONOArray
@@ -281,8 +280,6 @@ public final class ServerConstant {
         MIME_MAP.put("txt", "text/plain");
         MIME_MAP.put("php", "text/plain");
         MIME_MAP.put("ts", "video/mp2t");
-    }
-
-    ;
+    };
 
 }
