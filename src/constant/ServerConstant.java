@@ -1,14 +1,11 @@
 package constant;
 
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import WebServerLite.RunProcess;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public final class ServerConstant {
 
@@ -55,10 +52,12 @@ public final class ServerConstant {
         if (jsonIni.has("DEFAULT_HOST")) this.DEFAULT_HOST = jsonIni.getString("DEFAULT_HOST");
         if (jsonIni.has("DEFAULT_PORT")) this.DEFAULT_PORT = jsonIni.getString("DEFAULT_PORT");
         if (jsonIni.has("SERVER_HOM")) this.SERVER_HOM = jsonIni.getString("SERVER_HOM");
-        if (jsonIni.has("APPLICATION_OCTET_STREAM")) this.APPLICATION_OCTET_STREAM = jsonIni.getString("APPLICATION_OCTET_STREAM");
+        if (jsonIni.has("APPLICATION_OCTET_STREAM"))
+            this.APPLICATION_OCTET_STREAM = jsonIni.getString("APPLICATION_OCTET_STREAM");
         if (jsonIni.has("TEXT_PLAIN")) this.TEXT_PLAIN = jsonIni.getString("TEXT_PLAIN");
         if (jsonIni.has("TEXT_HTML")) this.TEXT_HTML = jsonIni.getString("TEXT_HTML");
-        if (jsonIni.has("APPLICATION_OCTET_STREAM")) this.APPLICATION_OCTET_STREAM = jsonIni.getString("APPLICATION_OCTET_STREAM");
+        if (jsonIni.has("APPLICATION_OCTET_STREAM"))
+            this.APPLICATION_OCTET_STREAM = jsonIni.getString("APPLICATION_OCTET_STREAM");
         if (jsonIni.has("INDEX_PAGE")) this.INDEX_PAGE = jsonIni.getString("INDEX_PAGE");
         if (jsonIni.has("CONTENT_TYPE")) this.CONTENT_TYPE = jsonIni.getString("CONTENT_TYPE");
         if (jsonIni.has("CONTENT_LENGTH")) this.CONTENT_LENGTH = jsonIni.getString("CONTENT_LENGTH");
@@ -103,64 +102,31 @@ public final class ServerConstant {
         }
         if (this.GIT_URL.length() > 0) {
             gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR); // клонируем git каталог для раздачи
-            Runnable r = ()-> {
+            Runnable r = () -> {
                 while (true) {
                     try {
-                        Thread.sleep(Integer.valueOf(this.GIT_INTERVAL+"000")); // ждем  и повторяем проверку изменений
+                        Thread.sleep(Integer.valueOf(this.GIT_INTERVAL + "000")); // ждем  и повторяем проверку изменений
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR)) {
-                        System.out.println("====================================");
-                        System.out.println("PULL успешно:");
-                        System.out.println(this.GIT_URL);
-                        System.out.println(this.WEBAPP_DIR);
-                        System.out.println("====================================");
-                        System.out.println();
-                    } else {
-                        System.out.println("====================================");
-                        System.out.println("В процессе PULL произашла ошибка:");
-                        System.out.println(this.GIT_URL);
-                        System.out.println(this.WEBAPP_DIR);
-                        System.out.println("====================================");
-                        System.out.println();
-                    };
-
+                    System.out.println("====================================");
+                    gitClone(this.GIT_URL, this.GIT_MASTER, this.WEBAPP_DIR);
+                    System.out.println("====================================");
+                    System.out.println();
                 }
             };
-            Thread gitCloneThread = new Thread(r,"git_Clone_Thread");
+            Thread gitCloneThread = new Thread(r, "git_Clone_Thread");
             gitCloneThread.start();
         }
     }
 
-    public static boolean gitClone(String gitUrl,String master, String localPath) {
-        try {
-            File localFile =  new File(localPath);
-            if (!localFile.exists()) { // если каталога нет, тогда создаем его
-                if (!localFile.mkdirs()) {
-                    return false;
-                }
-            }
-            File localGitFile =  new File(localPath + "/.git");
-            if (localGitFile.exists()) { // Если репозиторий уже существует, тогда стягиваем изменения
-                Git git = Git.open(localFile);
-                git.pull().call();
-                return true;
-            }
-            Git.cloneRepository().setURI(gitUrl).setDirectory(new File(localPath)).call();
-            // Открыть локальный репозиторий
-            Repository repository = new FileRepositoryBuilder().setGitDir(localGitFile).build();
-            // Checkout the master branch
-            Git git = new Git(repository);
-            if (master.length() > 0) {
-                // Переключить ветку
-                git.checkout().setName(master).call();
-            }
-            // Стянуть все изменения
-            git.pull().call();
-        } catch (GitAPIException | IOException e) {
-            e.printStackTrace();
-            return false;
+    public static boolean gitClone(String gitUrl, String master, String localPath) {
+        String dirPath = localPath.substring(0, localPath.lastIndexOf("/"));
+        String dirName = localPath.substring(localPath.lastIndexOf("/") + 1);
+        if (new File(localPath+"/.git").exists()) {
+            RunProcess.exec(new File(localPath), true, "git pull --progress \"origin\" ");
+        } else {
+            RunProcess.exec(new File(dirPath), true, "git clone " + gitUrl + " " + dirName);
         }
         return true;
     }
@@ -251,6 +217,7 @@ public final class ServerConstant {
     }
 
     public static List<String> LIB_JAR = new ArrayList<>();
+
     static {
         // JSONObject
         // JSONOArray
@@ -292,6 +259,8 @@ public final class ServerConstant {
         MIME_MAP.put("txt", "text/plain");
         MIME_MAP.put("php", "text/plain");
         MIME_MAP.put("ts", "video/mp2t");
-    };
+    }
+
+    ;
 
 }
