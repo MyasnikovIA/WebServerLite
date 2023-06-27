@@ -14,7 +14,7 @@ public class cmpOsm {
         //Systrm.out.print(property);
 
         String contentType = (String)query.get("Content-Type");                             // Получить mime контента (автоопределение по расширению)
-        query.put("Content-Type", "application/png");                                       // Изменить mime ответа
+        query.put("Content-Type", "application/png; charset=UTF-8");                        // Изменить mime ответа
 
 
         /*

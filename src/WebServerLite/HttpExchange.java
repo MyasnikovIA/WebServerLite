@@ -203,7 +203,7 @@ public class HttpExchange {
             DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
             dataOutputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
             // dataOutputStream.write(("Content-Type: text/html; charset=utf-8\r\n").getBytes());
-            dataOutputStream.write(("Content-Type: " + this.mimeType + "\r\n").getBytes());
+            dataOutputStream.write(("Content-Type: " + this.mimeType + "; charset=utf-8\r\n").getBytes());
             // Остальные заголовки
             dataOutputStream.write("Access-Control-Allow-Origin: *\r\n".getBytes());
             dataOutputStream.write("Access-Control-Allow-Credentials: true\r\n".getBytes());

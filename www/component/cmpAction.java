@@ -10,7 +10,7 @@ public class cmpAction {
         String method = httpExchange.getRequestMethod();                                    // метод запроса GET или POST
 
         String contentType = (String)query.get("Content-Type");                             // Получить mime контента (автоопределение по расширению)
-        query.put("Content-Type", "text/plain");                                            // Изменить mime ответа
+        query.put("Content-Type", "text/plain; charset=UTF-8");                                            // Изменить mime ответа
         // Получение тела POST запроса
         if (!session.containsKey("post")) {
             byte[] post = (byte[]) query.get("post");

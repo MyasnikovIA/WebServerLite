@@ -11,7 +11,7 @@ public class index {
     public byte[] onPage(HttpExchange query) {
         query.write("HTTP/1.1 200 OK\r\n");
         query.write("Cache-Control: no-store\r\n");
-        query.write("Content-Type: text/event-stream\r\n");
+        query.write("Content-Type: text/event-stream; charset=UTF-8\r\n");
         query.write("Access-Control-Allow-Credentials: true\r\n");
         query.write("\r\n");
         int delay = 100;
