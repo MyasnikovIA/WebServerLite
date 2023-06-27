@@ -1,2 +1,0 @@
-https://www.jstree.com/
-https://www.jqueryscript.net/demo/Tree-Plugin-jQuery-jsTree/
