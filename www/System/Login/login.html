@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация в системе</title>
+</head>
+<body>
+<center>
+    <table>
+        <tr>
+            <td colspan="2" style="text-align: center;">
+                <cmpLabel caption="Авторизация в системе" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <cmpLabel caption="Имя пользователя"/>
+            </td>
+            <td>
+                <cmpEdit name="username"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <cmpLabel caption="Парль пользователя"/>
+            </td>
+            <td>
+                <cmpEdit name="userpass" type="password"/>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center;">
+                <cmpButton caption="Войти" onclick="login();"/>
+            </td>
+        </tr>
+    </table>
+    <cmpLabel caption="" name="ctrlErrorInfo" />
+</center>
+<script>
+    function login() {
+        var jsonVars={
+            username: D3Api.getValue('username'),
+            hesh: MD5(D3Api.getValue('userpass')),
+            userpass: D3Api.getValue('userpass')
+        };
+        $.ajax({
+            url: '/{component}/loginDataBase',
+            method: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(jsonVars),
+            success: function(dataObj) {
+                if (!dataObj['connect']) {
+                   D3Api.setLabel('ctrlErrorInfo', dataObj['error']);
+                }
+                loadDirect("loginDirect"); // Возвращаемся на страницу инициатора вызова
+            }
+        });
+    };
+</script>
+</body>
+</html>

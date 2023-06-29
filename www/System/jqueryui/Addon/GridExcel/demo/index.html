@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="index.css" rel="stylesheet">
+    <link href="../src/magictable.css" rel="stylesheet">
+</head>
+<body>
+
+<p>A jQuery plugin that transforms JSON data into an Excel-style data grid with advanced features like filtering, sorting, editing, progressive data loading, and much more.</p>
+<h2>Features:</h2>
+<ul>
+    <li>✅ Cells navigation like Excel</li>
+    <li>✅ Progressive data loading</li>
+    <li>✅ Search</li>
+    <li>✅ Columns sorting</li>
+    <li>✅ Refresh table</li>
+    <li>✅ Update cell (text, dropdown, date, time, comment) </li>
+    <li>✅ Delete rows</li>
+    <li>✅ Excel export (need TableToExcel.js)</li>
+</ul>
+
+<p><b><u>Magictable example:</u></b></p>
+<div class="buttons">
+    <button id="mt-btn-delete" type="button"><i class="fa fa-trash"></i></button>
+    <button id="mt-btn-update" type="button"><i class="fa fa-arrows-rotate"></i></button>
+    <input type="text" id="input-search-value">
+    <button id="mt-btn-search" class="" type="button" ><i class="fa fa-magnifying-glass"></i></button>
+    <button id="mt-btn-remove-search" class="d-none" type="button"><i class="fa fa-xmark"></i></button>
+    <button id="mt-btn-export" type="button" onclick="tableExport();"><i class="fa fa-file-excel"></i></button>
+</div>
+
+<div id="table"></div>
+
+<small id="mt-number-lines"></small>
+
+<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+<script src="../src/magictable.js"></script>
+<script src="../lib/tableToExcel.js"></script>
+
+<script src="https://kit.fontawesome.com/2e0b1131a6.js" crossorigin="anonymous"></script>
+<script>
+    let dataModel = {};
+    dataModel['Id'] = {field:"id", fieldType: 'number', picklist: {},editable:false};
+    dataModel['Creation date'] = {field:"creationDate", fieldType: 'date', picklist: {},editable:true};
+    dataModel['Creation time'] = {field:"creationTime", fieldType: 'time', picklist: {},editable:true};
+    dataModel['Company'] = {field:"company", fieldType: 'text', picklist: {},editable:true};
+    dataModel['Country'] = {field:"country", fieldType: 'text', picklist: {},editable:true};
+    dataModel['Industry'] = {field:"industry", fieldType: 'picklist', picklist: ['Agriculture','Apparel','Banking','Biotechnology','Chemicals','Communications','Construction','Consulting','Education','Electronics','Energy','Engineering','Entertainment','Environmental','Finance','Food & Beverage','Government','Healthcare','Hospitality','Insurance','Machinery','Manufacturing','Media','Not For Profit','Recreation','Retail','Shipping','Technology','Telecommunications','Transportation','Utilities','Other'],editable:true};
+    dataModel['Number of employees'] = {field:"employees", fieldType: 'number', picklist: {},editable:true};
+    dataModel['Website'] = {field:"website", fieldType: 'text', picklist: {},editable:true};
+    dataModel['Comment'] = {field:"comment", fieldType: 'comment', picklist: {},editable:true};
+
+    $(document).ready( function () {
+        // Magictable('./data.json','','','',0,dataModel,true,true,false);
+        Magictable('#table','./data.json','','','',0,dataModel);
+    } );
+</script>
+</body>
+</html>

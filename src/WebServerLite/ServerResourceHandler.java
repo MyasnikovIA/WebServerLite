@@ -234,7 +234,7 @@ public class ServerResourceHandler implements Runnable {
                 } else if (new File(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404).exists()) {
                     query.sendFile(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404);
                 } else {
-                    query.sendFile("Page not found");
+                    query.sendHtml("Page not found");
                 }
             }
         }
