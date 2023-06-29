@@ -12,9 +12,7 @@ import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -150,6 +148,7 @@ public class ServerResourceHandler implements Runnable {
                                 String[] valSubArr = elem.split("=");
                                 if (valSubArr.length == 2) {
                                     query.cookie.put(valSubArr[0], valSubArr[1]);
+                                    System.out.println("ATR: "+valSubArr[0]+" = "+valSubArr[1]);
                                     if ((valSubArr[0].trim()).toLowerCase().equals("session")) {
                                         query.sessionID = valSubArr[1];
                                     }
@@ -160,7 +159,8 @@ public class ServerResourceHandler implements Runnable {
                 }
             }
         }
-        query.session = getSession(query);
+        query.expansion = getFileExt(query.requestPath).toLowerCase();
+        query.session = getSession(query); // генерация или зпгрузка старой сессии
         if (query.typeQuery.toUpperCase().equals("TERM")) { // Обработка запроса с терминала
             sendResponseTerminal();
             return false;
@@ -303,12 +303,20 @@ public class ServerResourceHandler implements Runnable {
      */
     public static HashMap<String, Object> getSession(HttpExchange httpExchange) {
         HashMap<String, Object> userSession;
+        if ((httpExchange.expansion.equals("html") || httpExchange.expansion.equals("js")) && (httpExchange.sessionID.length() == 0)) {
+            // Скорее всего не правильная инициализация сессии (Возможно ПЕРЕРАБОТАТЬ)
+            UUID uuid = UUID.randomUUID();
+            httpExchange.response.put("Set-Cookie","session="+uuid+"; debug="+ServerConstant.config.DEBUG+";");
+        }
         if (!sessionList.containsKey(httpExchange.sessionID)) {
             userSession = new HashMap<>();
             sessionList.put(httpExchange.sessionID, userSession);
         } else {
             userSession = sessionList.get(httpExchange.sessionID);
         }
+        System.out.println("-------------------------------------------------------" );
+        System.out.println("httpExchange.requestPath-----" + httpExchange.requestPath);
+        System.out.println("httpExchange.sessionID-----" + httpExchange.sessionID);
         return userSession;
     }
 

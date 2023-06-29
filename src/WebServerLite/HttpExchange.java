@@ -26,6 +26,7 @@ public class HttpExchange {
     // public String requestURI = "";
     public String requestText = "";
     public String requestPath = "";
+    public String expansion = "";
     public byte[] postBody = null;
     public JSONObject requestParam = new JSONObject();
 
