@@ -314,9 +314,6 @@ public class ServerResourceHandler implements Runnable {
         } else {
             userSession = sessionList.get(httpExchange.sessionID);
         }
-        System.out.println("-------------------------------------------------------" );
-        System.out.println("httpExchange.requestPath-----" + httpExchange.requestPath);
-        System.out.println("httpExchange.sessionID-----" + httpExchange.sessionID);
         return userSession;
     }
 
