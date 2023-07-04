@@ -148,7 +148,6 @@ public class ServerResourceHandler implements Runnable {
                                 String[] valSubArr = elem.split("=");
                                 if (valSubArr.length == 2) {
                                     query.cookie.put(valSubArr[0], valSubArr[1]);
-                                    System.out.println("ATR: "+valSubArr[0]+" = "+valSubArr[1]);
                                     if ((valSubArr[0].trim()).toLowerCase().equals("session")) {
                                         query.sessionID = valSubArr[1];
                                     }
@@ -208,7 +207,7 @@ public class ServerResourceHandler implements Runnable {
                     ServerResourceHandler.javaStrExecut.runJavaFile(query);
                 } else {
                     Resource res = null;
-                    if (file.length() < ServerConstant.config.LENGTH_CAHE) {
+                    if (file.length() > ServerConstant.config.LENGTH_CAHE) {
                         //Размер (байт) файла после которого отключается режим кэширования (если файл больше этого размера, тогда файл читается напрямую с жесткого диска)
                         query.sendByteFile(file);
                         return;
