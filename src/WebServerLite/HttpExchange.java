@@ -44,6 +44,7 @@ public class HttpExchange {
         this.inputStreamReader = new InputStreamReader(socket.getInputStream());
         this.headers = new HashMap<String, Object>();
         this.response.put("Connection", "close");
+        this.response.put("Server", "WebServerLite");
     }
 
     public void close() throws IOException {
@@ -205,10 +206,13 @@ public class HttpExchange {
             dataOutputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
             // dataOutputStream.write(("Content-Type: text/html; charset=utf-8\r\n").getBytes());
             dataOutputStream.write(("Content-Type: " + this.mimeType + "; charset=utf-8\r\n").getBytes());
+
+            // Крос доменный запрос из JS кода (ajax)
+            //dataOutputStream.write("Access-Control-Allow-Origin: *\r\n".getBytes());
+            //dataOutputStream.write("Access-Control-Allow-Credentials: true\r\n".getBytes());
+            //dataOutputStream.write("Access-Control-Expose-Headers: FooBar\r\n".getBytes());
+
             // Остальные заголовки
-            dataOutputStream.write("Access-Control-Allow-Origin: *\r\n".getBytes());
-            dataOutputStream.write("Access-Control-Allow-Credentials: true\r\n".getBytes());
-            dataOutputStream.write("Access-Control-Expose-Headers: FooBar\r\n".getBytes());
             Iterator<String> keys = this.response.keySet().iterator();
             while (keys.hasNext()) {
                 try {
@@ -229,5 +233,41 @@ public class HttpExchange {
             throw new RuntimeException(e);
         }
     }
-
+    public void sendByteFile(File file) {
+        try {
+            DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
+            dataOutputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
+            // dataOutputStream.write(("Content-Type: text/html; charset=utf-8\r\n").getBytes());
+            dataOutputStream.write(("Content-Type: " + this.mimeType + "; charset=utf-8\r\n").getBytes());
+            dataOutputStream.write(("Content-Length: " + file.length() + "\r\n").getBytes());
+            // Крос доменный запрос из JS кода (ajax)
+            // dataOutputStream.write("Access-Control-Allow-Origin: *\r\n".getBytes());
+            // dataOutputStream.write("Access-Control-Allow-Credentials: true\r\n".getBytes());
+            // dataOutputStream.write("Access-Control-Expose-Headers: FooBar\r\n".getBytes());
+            // Остальные заголовки
+            Iterator<String> keys = this.response.keySet().iterator();
+            while (keys.hasNext()) {
+                try {
+                    String key = keys.next();
+                    String val = this.response.get(key);
+                    dataOutputStream.write((key + ": " + val + "\r\n").getBytes());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            dataOutputStream.write("\r\n".getBytes());
+            //dataOutputStream.write("Connection: close\r\n".getBytes());
+            //dataOutputStream.write("Server: HTMLserver\r\n\r\n".getBytes());
+            InputStream inputStreamFile = new FileInputStream(file.getAbsolutePath());
+            byte[] bs = new byte[4096];
+            int lenReadByts;
+            while ((lenReadByts = inputStreamFile.read(bs)) >= 0) {
+                dataOutputStream.write(bs, 0, lenReadByts);
+            }
+            // dataOutputStream.write(0);
+            dataOutputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -26,11 +26,10 @@ public class Base extends Element {
             elements.append("<script cmp=\"common\" src=\"https://code.jquery.com/jquery-3.6.0.js\" type=\"text/javascript\"/>");
             elements.append("<script cmp=\"common\" src=\"https://code.jquery.com/ui/1.13.2/jquery-ui.js\" type=\"text/javascript\"/>");
             elements.append("<script cmp=\"common\" src=\"https://code.jquery.com/ui/1.13.2/jquery-ui.js\" type=\"text/javascript\"/>");
-             */
-
+            */
             for (String cssPath : ServerConstant.config.LIB_CSS) {
                 if (cssPath.length() == 0) continue;
-                elements.append("<link href=\"" + cssPath + "\" rel=\"stylesheet\" type=\"text/css\"/>");
+                elements.append("<link cmp=\"common\" href=\"" + cssPath + "\" rel=\"stylesheet\" type=\"text/css\"/>");
             }
 
             for (String jsPath : ServerConstant.config.LIB_JS) {

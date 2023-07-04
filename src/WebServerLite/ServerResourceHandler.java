@@ -185,7 +185,7 @@ public class ServerResourceHandler implements Runnable {
      * процедура отправки ответа клиенту (браузеру)
      */
     private void sendResponseQuery() {
-        String mimeType = getFileMime(query.requestPath);
+        query.mimeType = getFileMime(query.requestPath);
         String ext = getFileExt(query.requestPath).toLowerCase();
         if (query.requestParam.has("debug")) {
             ServerConstant.config.DEBUG = query.requestParam.getString("debug").equals("1");
@@ -208,7 +208,11 @@ public class ServerResourceHandler implements Runnable {
                     ServerResourceHandler.javaStrExecut.runJavaFile(query);
                 } else {
                     Resource res = null;
-                    if (!ServerConstant.config.DEBUG) { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
+                    if (file.length() < ServerConstant.config.LENGTH_CAHE) {
+                        //Размер (байт) файла после которого отключается режим кэширования (если файл больше этого размера, тогда файл читается напрямую с жесткого диска)
+                        query.sendByteFile(file);
+                        return;
+                    }else if (!ServerConstant.config.DEBUG)  { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
                         // Если ресурс не был ранее прочитан, или дата модификации была изменена, тогда читаем ресурс снова
                         if ((resources.get(resourcePath) == null) || !resourcesDateTime.get(resourcePath).equals(lastModified)) {
                             res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
@@ -222,8 +226,6 @@ public class ServerResourceHandler implements Runnable {
                         // если включена отладка, тогда перечитываем ресурс каждый раз при обращении
                         res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
                     }
-                    // query.mimeType = mimeType;
-                    query.mimeType = "text/html";
                     query.sendHtml(res.content);
                 }
             } else {
@@ -325,7 +327,7 @@ public class ServerResourceHandler implements Runnable {
      */
     public static String getFileMime(final String path) {
         String ext = getFileExt(path).toLowerCase();
-        if (!ServerConstant.config.MIME_MAP.containsKey(ext)) {
+        if (ServerConstant.config.MIME_MAP.containsKey(ext)) {
             return ServerConstant.config.MIME_MAP.get(ext);
         } else {
             return ServerConstant.config.APPLICATION_OCTET_STREAM;
@@ -359,6 +361,10 @@ public class ServerResourceHandler implements Runnable {
 
         public Resource(byte[] content) {
             this.content = content;
+        }
+        public Resource(byte[] content,String mimeType) {
+            this.content = content;
+            this.mimeType = mimeType;
         }
     }
 

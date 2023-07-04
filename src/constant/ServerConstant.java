@@ -51,6 +51,7 @@ public final class ServerConstant {
         if (jsonIni.has("WEBAPP_SYSTEM_DIR")) this.WEBAPP_SYSTEM_DIR = jsonIni.getString("WEBAPP_SYSTEM_DIR");
         if (jsonIni.has("DEFAULT_HOST")) this.DEFAULT_HOST = jsonIni.getString("DEFAULT_HOST");
         if (jsonIni.has("DEFAULT_PORT")) this.DEFAULT_PORT = jsonIni.getString("DEFAULT_PORT");
+        if (jsonIni.has("LENGTH_CAHE")) this.LENGTH_CAHE = jsonIni.getInt("LENGTH_CAHE");
         if (jsonIni.has("SERVER_HOM")) this.SERVER_HOM = jsonIni.getString("SERVER_HOM");
         if (jsonIni.has("APPLICATION_OCTET_STREAM"))
             this.APPLICATION_OCTET_STREAM = jsonIni.getString("APPLICATION_OCTET_STREAM");
@@ -152,6 +153,7 @@ public final class ServerConstant {
 
     public static String DEFAULT_HOST = "0.0.0.0";
     public static String DEFAULT_PORT = "8081"; // порт на котором будет работать сервер
+    public static int LENGTH_CAHE = 10485760;  // (10Мб) Размер файла после которого отключается режим кэширования (если файл больше этого размера, тогда файл читается напрямую с жесткого диска)
 
     //public static  String SERVER_HOM = "D:\\JavaProject\\HttpServer-JAVA-"; //  домашний каталог сервера
     public static String SERVER_HOM = "/data/data/com.termux/files/home2"; //  домашний каталог сервера
