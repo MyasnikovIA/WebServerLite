@@ -230,7 +230,7 @@ public class HttpExchange {
             // dataOutputStream.write(0);
             dataOutputStream.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
     public void sendByteFile(File file) {
@@ -267,7 +267,7 @@ public class HttpExchange {
             // dataOutputStream.write(0);
             dataOutputStream.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
