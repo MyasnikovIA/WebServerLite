@@ -12,6 +12,9 @@ import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -249,13 +252,17 @@ public class ServerResourceHandler implements Runnable {
             //OutputStream gout = gzip ? new GZIPOutputStream(bout) : new DataOutputStream(bout);
             OutputStream gout = new DataOutputStream(bout);
             if ("html".equals(ext)) { // если запрашиваем HTML страницу, тогда  обрабатываем как XML структуру, для замены специализированных тэгов
-                InputStreamReader inputStreamReader = new InputStreamReader(in);
-                StringBuffer sb = new StringBuffer();
-                int charInt;
-                while ((charInt = inputStreamReader.read()) > 0) {
-                    sb.append((char) charInt);
-                }
-                Document doc = Jsoup.parse(sb.toString()); // парсим HTML страницу  с использованием библиотеки jsoup-1.15.4.jar
+                // InputStreamReader inputStreamReader = new InputStreamReader(in);
+                //StringBuffer sb = new StringBuffer();
+                //int charInt;
+                //while ((charInt = inputStreamReader.read()) > 0) {
+                //    sb.append((char) charInt);
+                //}
+                //Document doc = Jsoup.parse(sb.toString()); // парсим HTML страницу  с использованием библиотеки jsoup-1.15.4.jar
+
+                Path path = Paths.get(resourcePath);
+                byte[] bytes = Files.readAllBytes(path);
+                Document doc = Jsoup.parse(new String(bytes)); // парсим HTML страницу  с использованием библиотеки jsoup-1.15.4.jar
                 Element els = doc.getElementsByTag("body").get(0);
                 doc.attr("doc_path", resourcePath);
                 doc.attr("rootPath", rootPath);
