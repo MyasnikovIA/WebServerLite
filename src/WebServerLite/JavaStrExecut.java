@@ -520,7 +520,7 @@ public class JavaStrExecut {
         Set<String> jarSet = new LinkedHashSet<String>(jarResourse);
         StringBuffer libList = new StringBuffer(System.getProperty("java.class.path")); // получаем пут к библиотекам, которые подключены к проету
         for (String key : jarSet) {
-            File file = new File(ServerConstant.config.LIB_DIR + File.separator + key);
+            File file = new File(key);
             if (file.exists()) {
                 libList.append(";");
                 libList.append(file.getAbsolutePath()); // подключаем путь располежения библиотек из конфигурационного файла
