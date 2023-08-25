@@ -18,6 +18,8 @@ public class HttpExchange {
     public HashMap<String, Object> headers = new HashMap<String, Object>();
     public HashMap<String, String> cookie = new HashMap<String, String>();
     public HashMap<String, String> response = new HashMap<String, String>();
+
+    public static JSONObject SHARE = new JSONObject();
     public String sessionID = "";
     public HashMap<String, Object> session = null;
     public InputStreamReader inputStreamReader;
@@ -39,6 +41,7 @@ public class HttpExchange {
     public static HashMap<String, ArrayList<String>> BROADCAST_MESSAGE_LIST = new HashMap<String, ArrayList<String>>(10, (float) 0.5);
 
     public HttpExchange(Socket socket, HashMap<String, Object> session) throws IOException, JSONException {
+        this.SHARE = ServerResourceHandler.SERVER_SHARE;
         this.socket = socket;
         this.socket.setSoTimeout(86400000);
         this.inputStreamReader = new InputStreamReader(socket.getInputStream());
@@ -151,7 +154,7 @@ public class HttpExchange {
         message = sbSub2.toString();
         if (message.indexOf(":") != -1) {
             for (String titleLine : message.split("\r")) {
-                System.out.println("titleLine|" + titleLine);
+                // System.out.println("titleLine|" + titleLine);
                 titleLine = titleLine.replace("\n", "");
                 if (titleLine.indexOf(":") != -1) {
                     String key = titleLine.substring(0, titleLine.indexOf(":")).trim();
@@ -202,6 +205,7 @@ public class HttpExchange {
      */
     public void sendHtml(byte[] content) {
         try {
+            if (!socket.isConnected()) return;
             DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
             dataOutputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
             // dataOutputStream.write(("Content-Type: text/html; charset=utf-8\r\n").getBytes());

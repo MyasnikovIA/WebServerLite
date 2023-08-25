@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>EventSource.java</title>
+</head>
+<body>
+<center>Получение положение VR очков (EventSource)</center>
+<div id="list"></div>
+<script>
+    const dev = 'VR';
+    const evtSource = new EventSource(`/Example/EventSource/esp8266/vr_helmet/vr.java?dev=${dev}&delay=10`, { withCredentials: true } );
+    evtSource.onmessage = (event) => {
+        const newElement = document.createElement('li');
+        const eventList = document.getElementById('list');
+        newElement.textContent = `message: ${event.data}`;
+        eventList.appendChild(newElement);
+    }
+    evtSource.addEventListener(dev, (event) => {
+        const eventList = document.getElementById('list');
+        eventList.innerHTML = event.data;
+        var objData = JSON.parse(event.data)
+        console.log('objData',objData)
+    });
+    evtSource.onerror = (err) => {
+        console.error('EventSource failed:', err);
+    };
+</script>
+<pre>
+-------------------------------------------------------
+   VR_compas.ino
+-------------------------------------------------------
+#include <Wire.h>
+#include <QMC5883LCompass.h>
+#include <ArduinoJson.h> // https://arduinojson.org/v6/api/jsonobject/containskey/
+DynamicJsonDocument jsonCmd(2048);
+
+QMC5883LCompass compass0;
+void setup() {
+    Serial.begin(115200);
+    compass0.init();
+}
+
+void loop() {
+    connectApp("SSID-NAME-XXXXX","SSPASS-XXXXX");
+    while (connectSignalServer("127.0.0.1", 80, "Example/EventSource/esp8266/vr_helmet/vr.java", "VR")) {
+        String textFromSrv = readWiFiData();
+        compass0.read();
+        int res[]={0,0,0,0};
+        res[0] = compass0.getX();
+        res[1] = compass0.getY();
+        res[2] = compass0.getZ();
+        res[3] = compass0.getAzimuth();
+        String msg = "\"[";
+        msg += res[0];
+        msg += ",";
+        msg += res[1];
+        msg += ",";
+        msg += res[2];
+        msg += ",";
+        msg += res[3];
+        msg += "]\"";
+        Serial.println(msg);
+        sendClient(msg);
+        delay(100);
+    }
+}
+-------------------------------------------------------
+
+=======================================================
+
+-------------------------------------------------------
+   wifi_manager_modul.ino
+-------------------------------------------------------
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h> // https://arduinojson.org/v6/api/jsonobject/containskey/
+
+WiFiClient clientSocket;
+String methSend = "send";
+String device_name = "sens";
+String device_pass = "1234";
+String server_path = "remute_control.java";
+String session = "";
+String fromDevice="";
+DynamicJsonDocument jsoonObj(2048);
+
+void connectApp(String ssid, String password){
+   boolean isFound = false;
+   int selApp = -1;
+        int Tnetwork=0;
+        Tnetwork = WiFi.scanNetworks();
+        while (selApp == -1) {
+          for (int i = 0; i < Tnetwork; ++i) {
+              //if (WiFi.SSID(i) == "a616mm"){
+              //    selApp = i;
+              //    isFound = true;
+              //    break;
+              //}
+
+              //if (WiFi.SSID(i) == "RT-GPON-3AD2"){
+              //    selApp = i;
+              //    isFound = true;
+              //    break;
+              //}
+              //if (WiFi.SSID(i) == "ELTEX-87A2"){
+              //    selApp = i;
+              //    isFound = true;
+              //    break;
+              //}
+
+              if (WiFi.SSID(i) == ssid){
+                  selApp = i;
+                  isFound = true;
+                  break;
+              }
+              Serial.println(WiFi.SSID(i));
+          }
+        }
+    isFound = true;
+    // Serial.println("Connecting to ");
+    // Serial.println(WiFi.SSID(selApp));
+    WiFi.begin(WiFi.SSID(selApp), password.c_str() );
+    while (WiFi.status() != WL_CONNECTED) {
+          delay(500);
+           Serial.println(".");
+    }
+    Serial.print("Connected, IP address: ");
+    Serial.println(WiFi.localIP());
+    Serial.println(WiFi.macAddress()+"");
+}
+
+
+void sendClient(String msg) {
+    if (session.length() > 0) {
+        clientSocket.println("{\""+methSend+"\":\""+fromDevice+"\",\""+session+"\":\""+session+"\",\"msg\":"+msg+"}");
+    } else {
+        clientSocket.println("{\""+methSend+"\":\""+fromDevice+"\",\"msg\":"+msg+"}");
+    }
+    clientSocket.println("");
+    clientSocket.println("");
+}
+
+int indStep=0;
+bool onPing(){
+    indStep++;
+    if (indStep > 500000) {
+       indStep=0;
+       clientSocket.println("ping");
+       clientSocket.println();
+       clientSocket.println();
+       return true;
+   }
+   return false;
+}
+
+String readWiFiData(){
+    String line = "";
+    while(clientSocket.available()){
+        // String line = clientSocket.readStringUntil('\n');
+        // Serial.print(line);
+        char nextChar = clientSocket.read();
+        line += nextChar;
+    }
+    return line;
+}
+
+bool testSignalServer() {
+    return clientSocket.connected();
+}
+
+bool connectSignalServer(String server_ip, int server_port, String server_path_src, String device_name_src) {
+    if (testSignalServer()){
+        return true;
+    }
+    device_name = device_name_src;
+    server_path = server_path_src;
+    // String server_ip = "91.105.155.132";
+    // int server_port=8080;
+    if (clientSocket.connect(server_ip, server_port)) {
+        fromDevice = device_name;
+        clientSocket.println("TERM /"+server_path);
+        clientSocket.println("device_name :" + device_name);
+        clientSocket.println("device_pass :" + device_pass);
+        clientSocket.println();
+        clientSocket.println();
+        delay(500);
+        // получить ответ от сервера( информация орегистрации клиента)
+        String textAnswerSrv = readWiFiData();
+        if (textAnswerSrv.length() > 0) {
+            DeserializationError error = deserializeJson(jsoonObj, textAnswerSrv);
+            if (jsoonObj.containsKey("session")) {
+                session = String(jsoonObj["session"]);
+            }
+        }
+
+        //if (DEBUG) {
+        // Serial.println("Server connected (");
+        // Serial.println(String(jsoonObj["server_ip"]));
+        // Serial.println("Server no connect :");
+        // Serial.println(String(jsoonObj["server_port"]));
+        // Serial.println("}");
+        // }
+        return true;
+    } else {
+        //if (DEBUG) {
+        //  Serial.println("Server no connect (");
+        //  Serial.println(String(jsoonObj["server_ip"]));
+        //  Serial.println("Server no connect :");
+        //  Serial.println(String(jsoonObj["server_port"]));
+        //  Serial.println("}");
+        // }
+        return false;
+    }
+}
+-------------------------------------------------------
+</pre>
+</body>
+</html>

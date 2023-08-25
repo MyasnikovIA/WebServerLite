@@ -2,6 +2,7 @@ package WebServerLite;
 
 import constant.ServerConstant;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 
 public class ServerResourceHandler implements Runnable {
 
+    public static JSONObject SERVER_SHARE = new JSONObject();
     private final Map<String, Resource> resources = new HashMap<>(); // хронилище статического ресурса в оперативной памяти
     private final Map<String, String> resourcesDateTime = new HashMap<>(); // хронилище даты и времени последней модификации файла (путь к файлу)
     public static HashMap<String, HashMap<String, Object>> sessionList = new HashMap<>(); // список всех сессий, которые зарегистрированны на сервере
@@ -178,7 +180,7 @@ public class ServerResourceHandler implements Runnable {
         // обработка запроса bp
         while (query.socket.isConnected()) {
             String message = query.read();
-            if ((message == null) ||(message.trim().toLowerCase().equals("exit"))) break;
+            if ((message == null) || (message.trim().toLowerCase().equals("exit"))) break;
             if (!javaStrExecut.runJavaTerminalFile(query)) break;
         }
     }
