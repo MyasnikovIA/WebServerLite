@@ -34,16 +34,14 @@
 #include <QMC5883LCompass.h>
 #include <ArduinoJson.h> // https://arduinojson.org/v6/api/jsonobject/containskey/
 DynamicJsonDocument jsonCmd(2048);
-
 QMC5883LCompass compass0;
 void setup() {
     Serial.begin(115200);
     compass0.init();
 }
-
 void loop() {
     connectApp("SSID-NAME-XXXXX","SSPASS-XXXXX");
-    while (connectSignalServer("127.0.0.1", 80, "Example/EventSource/esp8266/vr_helmet/vr.java", "VR")) {
+    while (connectSignalServer("127.0.0.1", 80, "Example/EventSource/body_position_in_space/sensor_ctrl.java", "SENSOR")) {
         String textFromSrv = readWiFiData();
         compass0.read();
         int res[]={0,0,0,0};
