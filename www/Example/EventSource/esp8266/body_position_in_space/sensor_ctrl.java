@@ -23,11 +23,12 @@ device_name:test1
         query.write("Cache-Control: no-store\r\n");
         query.write("Content-Type: text/event-stream; charset=UTF-8\r\n");
         // ---- Крос доменный запрос из JS кода (ajax) ----
-        query.write("Access-Control-Allow-Origin: *\r\n");
-        query.write("Access-Control-Allow-Credentials: true\r\n");
-        query.write("Access-Control-Expose-Headers: FooBar\r\n");
+       // query.write("Access-Control-Allow-Origin: *\r\n");
+        query.write("access-control-allow-origin: *\r\n");
+        query.write("access-control-allow-credentials: true\r\n");
+        query.write("access-control-expose-headers: FooBar\r\n");
         query.write("\r\n");
-        String nameDevice = "dev";
+        String nameDevice = "SENSOR";
         if (query.requestParam.has("dev")) {
             nameDevice = query.requestParam.getString("dev");
         }

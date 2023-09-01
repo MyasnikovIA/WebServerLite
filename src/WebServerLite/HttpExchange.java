@@ -115,7 +115,42 @@ public class HttpExchange {
     }
 
     /**
-     * Функция ожидания данных от клиента
+     * Функция проверки  готовности данных для прочтения ль клиента
+     * @return
+     */
+    public boolean available() {
+        try {
+            return inputStreamReader.ready();
+        } catch (IOException e) {
+            return false;
+            //throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Функция чтения строки от клиента
+     *
+     * @return
+     */
+    public String readLine() {
+        StringBuffer sbSub2 = new StringBuffer();
+        int subcharInt = -1;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try {
+            while (available()) {
+                if (!((subcharInt = inputStreamReader.read()) != -1)) break;
+                sbSub2.append((char) subcharInt);
+                buffer.write(subcharInt);
+            }
+        } catch (IOException e) {
+            sbSub2.append(e.getMessage());
+            //throw new RuntimeException(e);
+        }
+        return sbSub2.toString();
+    }
+
+    /**
+     * Функция ожидания данных от клиента (преобразование в объект)
      *
      * @return
      */
@@ -144,6 +179,10 @@ public class HttpExchange {
                 sbSub2.append((char) subcharInt);
                 buffer.write(subcharInt);
                 subcharIntLast = subcharInt;
+            }
+            // читаем остальные данные из буфера(очищаем очередь)
+            while (available()) {
+               if (!((subcharInt = inputStreamReader.read()) != -1)) break;
             }
         } catch (IOException e) {
             return null;

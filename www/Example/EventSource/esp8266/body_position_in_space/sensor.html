@@ -9,7 +9,8 @@
 <div id="list"></div>
 <script>
     const dev = 'SENSOR';
-    const evtSource = new EventSource(`/Example/EventSource/body_position_in_space/sensor_ctrl.java?dev=${dev}&delay=10`, { withCredentials: true } );
+    //const evtSource = new EventSource(`/Example/EventSource/body_position_in_space/sensor_ctrl.java?dev=${dev}&delay=10`, { withCredentials: true } );
+    const evtSource = new EventSource(`/Example/EventSource/esp8266/body_position_in_space/sensor_ctrl.java?dev=${dev}&delay=10`, { withCredentials: true } );
     evtSource.onmessage = (event) => {
         const newElement = document.createElement('li');
         const eventList = document.getElementById('list');
@@ -30,38 +31,57 @@
 -------------------------------------------------------
    VR_compas.ino
 -------------------------------------------------------
-#include <Wire.h>
-#include <QMC5883LCompass.h>
 #include <ArduinoJson.h> // https://arduinojson.org/v6/api/jsonobject/containskey/
 DynamicJsonDocument jsonCmd(2048);
-QMC5883LCompass compass0;
+
 void setup() {
     Serial.begin(115200);
-    compass0.init();
+    for (uint8_t ind=0; ind<24; ind++) {
+        setupCompas(ind);
+    }
+    setupPCA9685();
 }
 void loop() {
-    connectApp("SSID-NAME-XXXXX","SSPASS-XXXXX");
-    while (connectSignalServer("127.0.0.1", 80, "Example/EventSource/body_position_in_space/sensor_ctrl.java", "SENSOR")) {
-        String textFromSrv = readWiFiData();
-        compass0.read();
-        int res[]={0,0,0,0};
-        res[0] = compass0.getX();
-        res[1] = compass0.getY();
-        res[2] = compass0.getZ();
-        res[3] = compass0.getAzimuth();
-        String msg = "\"[";
-        msg += res[0];
-        msg += ",";
-        msg += res[1];
-        msg += ",";
-        msg += res[2];
-        msg += ",";
-        msg += res[3];
-        msg += "]\"";
-        Serial.println(msg);
-        sendClient(msg);
-        delay(100);
-    }
+  connectApp("XXXXXXX","XXXXXXX");
+  while (connectSignalServer("91.105.155.132", 80, "Example/EventSource/esp8266/body_position_in_space/sensor_ctrl.java", "SENSOR")) {
+      String textFromSrv = readWiFiData();
+      //if (textFromSrv.length() > 0) {
+      //    DeserializationError error = deserializeJson(jsonCmd, textFromSrv);
+      //    if (jsonCmd.containsKey("session")) { 
+      //       session = String(jsonCmd["session"]);
+      //    }
+      //    if ((jsonCmd.containsKey("pin")&&(jsonCmd.containsKey("pos")) { 
+      //       int pin = String(jsonCmd["pin"]);
+      //       int stopPos = int(jsoonObj["pos"]);
+      //       movePos(pin, stopPos);
+      //    }
+      //}
+      String msg = "\"[";
+      for (uint8_t ind=0; ind<24; ind++) {
+          int res[]={0,0,0,0}; 
+          getPositionCompas(ind, res);
+          if ((res[0] == -1)&&(res[1] == -1)&&(res[2] == -1)&&(res[3] == -1)) continue;
+          if ((res[0] == 0)&&(res[1] == 0)&&(res[2] == 0)&&(res[3] == 0)) continue;
+          if (ind>0){
+              msg += ",";
+          }
+          msg += "[";
+          msg += ind;
+          msg += ",";
+          msg += res[0];
+          msg += ",";
+          msg += res[1];
+          msg += ",";
+          msg += res[2];
+          msg += ",";
+          msg += res[3];
+          msg += "]";
+      }  
+      msg += "]\"";
+      // Serial.println(msg);
+      sendClient(msg);
+      delay(200);
+  }
 }
 -------------------------------------------------------
 

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        //    https://developer.mozilla.org/ru/docs/Web/API/XMLHttpRequest/Synchronous_and_Asynchronous_Requests
+        //    https://learn.javascript.ru/xmlhttprequest
+        function CreateRequest() {
+            var Request = false;
+            if (window.XMLHttpRequest) {
+                Request = new XMLHttpRequest();
+            } else if (window.ActiveXObject) {
+                try {
+                     Request = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (CatchException) {
+                     Request = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+            }
+            if (!Request) {
+                alert("Невозможно создать XMLHttpRequest");
+            }
+            return Request;
+        }
+        function SendRequest(requestURL, r_method, collback) {
+            if (!r_method) {
+                r_method = "GET";
+            }
+            var xhr = CreateRequest();
+            //Проверяем существование запроса еще раз
+            if (!xhr) {
+                return;
+            }
+            // Устанавливаем заголовок
+            // xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=utf-8");
+            if (collback) {
+                xhr.open(r_method, requestURL);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState !== 4 || xhr.status !== 200) {
+                        return;
+                    }
+                    const response = xhr.response;
+                    collback && collback(response);
+                }
+                return xhr;
+            } else {
+                xhr.open(r_method, requestURL, false);
+                xhr.send();
+                if (xhr.status === 200) {
+                    return JSON.parse(xhr.responseText);
+                } else {
+                    return xhr;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="list"></div>
+</body>
+    <script>
+        let timerId = setTimeout(function tick() {
+            var jsonObject = SendRequest('http://www.smwrap.ru:8080/Example/EventSource/esp8266/vr_helmet/vr_ajax.java');
+            console.log(jsonObject);
+            document.getElementById('list').innerHTML = JSON.stringify(jsonObject) ;
+            timerId = setTimeout(tick, 100);
+        }, 100);
+    </script>
+</html>

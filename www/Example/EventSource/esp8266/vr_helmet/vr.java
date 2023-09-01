@@ -27,7 +27,7 @@ device_name:test1
         query.write("Access-Control-Allow-Credentials: true\r\n");
         query.write("Access-Control-Expose-Headers: FooBar\r\n");
         query.write("\r\n");
-        String nameDevice = "dev";
+        String nameDevice = "VR";
         if (query.requestParam.has("dev")) {
             nameDevice = query.requestParam.getString("dev");
         }
