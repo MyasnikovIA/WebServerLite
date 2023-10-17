@@ -1,0 +1,235 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <script>
+
+//Бланк отчета
+var XML = `<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="33b0ba21-c1cf-4c2d-8d61-5c5cf0251a77">
+	<property name="ireport.zoom" value="1.6105100000000014"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
+	<parameter name="TEST" class="java.lang.String">
+		<defaultValueExpression><![CDATA[222222]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MyNewParam" class="java.lang.String">
+		<defaultValueExpression><![CDATA["4444444444"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TITLE_TEXT" class="java.lang.String"/>
+	<queryString language="json">
+		<![CDATA[Northwind]]>
+	</queryString>
+	<field name="my_fild" class="java.lang.String"/>
+	<field name="id" class="java.lang.Long">
+		<property name="net.sf.jasperreports.json.field.expression" value="id"/>
+	</field>
+	<field name="name" class="java.lang.String">
+		<property name="net.sf.jasperreports.json.field.expression" value="name"/>
+	</field>
+	<field name="username" class="java.lang.String">
+		<property name="net.sf.jasperreports.json.field.expression" value="username"/>
+	</field>
+	<field name="TEST" class="java.lang.String">
+		<property name="net.sf.jasperreports.json.field.expression" value="TEST"/>
+	</field>
+	<title>
+		<band height="143">
+			<textField>
+				<reportElement x="0" y="94" width="128" height="20" uuid="a4891b97-6a8e-4ca2-ac7e-a0aef7377966"/>
+				<textElement>
+					<font fontName="DejaVu Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TEST}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="450" y="110" width="100" height="20" uuid="23d3c476-2e3b-45f5-8157-5d8a14615d09"/>
+				<textFieldExpression><![CDATA[$P{MyNewParam}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="128" y="110" width="165" height="20" uuid="a6fe3370-3a5a-4ecd-b767-19bd6de05f0a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Static text 4444444444]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="41" width="245" height="35" uuid="c1bd889c-3875-40cd-8bcd-1da5f43e2721"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TITLE_TEXT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="50" height="15" uuid="ee7d3f1c-9bfb-4590-9e5a-21deebd2e89d"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="70" y="0" width="100" height="15" uuid="6b88584f-42c4-439b-82e9-63347e0982a0"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="170" y="1" width="100" height="15" uuid="b7a092f7-bf32-47a4-b6b4-c19dc17b0ebc"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{username}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>`;
+
+
+
+// Адрес сервера отчета
+       //var urlSello1 = 'http://www.smwrap.ru/ReportServer/get_pdf3.java';
+       var urlSello1 = 'http://127.0.0.1:8080/ReportServer/get_pdf3.java';
+
+
+
+//Обьект с информацией для отправки на сервер отчета
+        window.data = {
+          'type_report': 'pdf',                // Формат  в котооый должен быть преобразован отчет (pdf, docx, xls, odt)
+          'TEST': '',                          // Параметр , который будет выводиться в отчет
+          'TITLE_TEXT': '',                    // Параметр , который будет выводиться в отчет
+          'My2Param': 'My2Param!!!!!',                    // Параметр , который будет выводиться в отчет
+          'XML':XML,                           // Бланк отчета
+          'dataset':[
+                  { "id": 1,
+                    "name": "Leanne Graham",
+                    "username": "Bret",
+                    "email": "Sincere@april.biz"
+                  },
+                  { "id": 2,
+                    "name": "Ervin Howell0",
+                    "username": "Antonette",
+                    "email": "Shanna@melissa.tv"
+                  },
+                  { "id": 3,
+                    "name": "Ervin Howell3",
+                    "username": "Antonette",
+                    "email": "Shanna@melissa.tv"
+                  },
+                  { "id": 4,
+                    "name": "Ervin Howell4",
+                    "username": "Antonette",
+                    "username": "Antonette",
+                    "email": "Shanna@melissa.tv"
+                  }
+             ]
+        };
+
+
+// функция получения просмотра отчета
+        function generarSello(urlText, type_report) {
+            window.data['TITLE_TEXT'] = document.getElementById('titleReport').value;
+            window.data['TEST'] = document.getElementById('barReport').value;
+            window.data['type_report'] = type_report || 'pdf';
+            var params = JSON.stringify(window.data);
+            console.log(params)
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if (this.readyState == 4 && this.status == 200){
+                    console.log(this.response, typeof this.response);
+                    var urlBuilder = window.URL || window.webkitURL;
+                    document.getElementById("iFramePDF").src = urlBuilder.createObjectURL(this.response);
+                    document.getElementById("iFramePDF").style.display = 'block';
+                }
+            };
+            xhr.open('POST', urlText, true);
+            xhr.responseType = 'blob';
+            xhr.send(params);
+        };
+
+
+// функция скачивания отчета
+        function downloadFile(urlText, type_report) {
+            window.data['TITLE_TEXT'] = document.getElementById('titleReport').value;
+            window.data['TEST'] = document.getElementById('barReport').value;
+            window.data['type_report'] = type_report || 'pdf';
+            var params = JSON.stringify(window.data);
+            console.log(params)
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if (this.readyState == 4 && this.status == 200){
+                    console.log(this.response, typeof this.response);
+                    var urlBuilder = window.URL || window.webkitURL;
+                    var a = document.createElement('a');
+                    a.href = urlBuilder.createObjectURL(this.response);
+                    a.download = 'fileName';
+                    a.dispatchEvent(new MouseEvent('click'));
+                    // Open Window View
+                    // window.open(urlBuilder.createObjectURL(this.response), "Download", "popup");
+                    // window.open("","","width=250,height=250,left=200");
+                    // https://itchief.ru/javascript/popup-browser-windows
+                }
+            };
+            xhr.open('POST', urlText, true);
+            xhr.responseType = 'blob';
+            xhr.send(params);
+        };
+
+
+// загрузка нового бланка отчета
+// Читаем бланк *.JRXML и сохраняем его в объект для отправки на сервер отчетов
+    function readJrxmlFile(input) {
+        let file = input.files[0];
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = function() {
+            window.data['XML'] = reader.result;
+            console.log(reader.result);
+            XML = reader.result;
+        };
+        reader.onerror = function() {
+             console.log(reader.error);
+        };
+    }
+
+
+// Выгрузить бланк в файл
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    function downloadJrxmlFile(input) {
+        download ('blank.jrxml',window.data['XML']);
+    }
+
+    </script>
+</head>
+<body>
+    <div>
+        <button onclick="generarSello(urlSello1, 'pdf');"> View PDF</button>
+        <button onclick="downloadFile(urlSello1, 'pdf');">Download PDF</button>
+        <button onclick="downloadFile(urlSello1, 'docx');">Download DOCX</button>
+        <button onclick="downloadFile(urlSello1, 'xls');">Download XLS</button>
+        <button onclick="downloadFile(urlSello1, 'odt');">Download odt (doc)</button>
+        <button onclick="downloadFile(urlSello1, 'ods');">Download ods (xls)</button>
+        <br/>
+        <br/>
+        <br/>
+        Загрузить файл бланка *.JRXML <input type="file" onchange="readJrxmlFile(this)">
+        <br/>
+        Выгрузить бланк  *.JRXML <button onclick="downloadJrxmlFile();">Download Blank *.Jrxml</button>
+        <br/><br/>
+        <h3>Входящие атрибуты отчета:</h3>
+        <table>
+            <tr><td>Заголовок в отчете </td> <td> <input id="titleReport" type="text" value="Заголовок"></td></tr>
+            <tr><td>Bar code </td> <td> <input id="barReport" type="text" value="111111"></td></tr>
+        </table>
+    </div>
+    <iframe id="iFramePDF" name="iFramePDF" src=""  width="100%" height="100%" frameBorder="0" styele="display:none"></iframe>
+
+</body>
+</html>
