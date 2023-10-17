@@ -87,13 +87,20 @@ public class ServerResourceHandler implements Runnable {
             String lengPostStr = sbTmp2.substring(0, sbTmp2.indexOf("\n")).replace("\r", "");
             int LengPOstBody = Integer.valueOf(lengPostStr);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            while ((charInt = query.inputStreamReader.read()) > 0) {
+            int maxArrBuf = 1024;
+            char[] bufferArr = new char[maxArrBuf];
+            while ((charInt = query.inputStreamReader.read(bufferArr)) > 0) {
                 if (query.socket.isConnected() == false) {
                     return false;
                 }
-                buffer.write((char) charInt);
-                LengPOstBody--;
-                if (LengPOstBody == 0) {
+                for (char symb : bufferArr) {
+                    int test = symb;
+                    if (test==0){
+                        break;
+                    }
+                    buffer.write(symb);
+                }
+                if (charInt < maxArrBuf) {
                     break;
                 }
             }
@@ -111,7 +118,7 @@ public class ServerResourceHandler implements Runnable {
                     titleLine = titleLine.replaceAll("GET /", "");
                     query.typeQuery = "GET";
                 } else if (titleLine.indexOf("POST /") != -1) {
-                    titleLine = titleLine.replaceAll("GET /", "");
+                    titleLine = titleLine.replaceAll("POST /", "");
                 } else if (titleLine.indexOf("TERM /") != -1) {
                     titleLine = titleLine.replaceAll("TERM /", "");
                     query.typeQuery = "TERM";
@@ -201,6 +208,8 @@ public class ServerResourceHandler implements Runnable {
             ServerResourceHandler.javaStrExecut.runJavaComponent(query);
         } else {
             String resourcePath = ServerConstant.config.WEBAPP_DIR + "/" + query.requestPath;
+            System.out.println(resourcePath);
+
             File file = new File(resourcePath);
             if (!file.exists() && ServerConstant.config.WEBAPP_SYSTEM_DIR.length()>0) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;

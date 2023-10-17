@@ -1,5 +1,6 @@
 package WebServerLite;
 
+import constant.ServerConstant;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,6 +29,10 @@ public class HttpExchange {
     // public String requestURI = "";
     public String requestText = "";
     public String requestPath = "";
+
+    public String webappDir = "";
+
+
     public String expansion = "";
     public byte[] postBody = null;
     public JSONObject requestParam = new JSONObject();
@@ -43,11 +48,14 @@ public class HttpExchange {
     public HttpExchange(Socket socket, HashMap<String, Object> session) throws IOException, JSONException {
         this.SHARE = ServerResourceHandler.SERVER_SHARE;
         this.socket = socket;
-        this.socket.setSoTimeout(86400000);
-        this.inputStreamReader = new InputStreamReader(socket.getInputStream());
+        if (this.socket!=null) {
+            this.socket.setSoTimeout(86400000);
+            this.inputStreamReader = new InputStreamReader(socket.getInputStream());
+        }
         this.headers = new HashMap<String, Object>();
         this.response.put("Connection", "close");
         this.response.put("Server", "WebServerLite");
+        this.webappDir = ServerConstant.config.WEBAPP_DIR;
     }
 
     public void close() throws IOException {

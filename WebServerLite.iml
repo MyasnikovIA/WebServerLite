@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="bcpg-jdk15on-1.61 (4)" level="project" />
+    <orderEntry type="library" name="JasperReport" level="project" />
   </component>
 </module>

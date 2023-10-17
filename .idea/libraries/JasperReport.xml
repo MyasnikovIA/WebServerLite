@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="JasperReport">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/JasperReport.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
