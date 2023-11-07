@@ -95,7 +95,7 @@ public class ServerResourceHandler implements Runnable {
                 }
                 for (char symb : bufferArr) {
                     int test = symb;
-                    if (test==0){
+                    if (test == 0) {
                         break;
                     }
                     buffer.write(symb);
@@ -211,11 +211,19 @@ public class ServerResourceHandler implements Runnable {
             System.out.println(resourcePath);
 
             File file = new File(resourcePath);
-            if (!file.exists() && ServerConstant.config.WEBAPP_SYSTEM_DIR.length()>0) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
+            if (!file.exists() && ServerConstant.config.WEBAPP_SYSTEM_DIR.length() > 0) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
                 file = new File(resourcePath);
             }
-            if (file.exists()) {
+            if (WebServerLite.pagesList.containsKey(query.requestPath)) {
+                byte[] res = WebServerLite.pagesList.get(query.requestPath).call(query);
+                if (res != null) {
+                    if (query.mimeType.equals("html")){
+
+                    }
+                    query.sendHtml(res);
+                }
+            } else if (file.exists()) {
                 String lastModified = String.valueOf(new Date(file.lastModified()));
                 if ("java".equals(ext)) {
                     ServerResourceHandler.javaStrExecut.runJavaFile(query);
@@ -225,7 +233,7 @@ public class ServerResourceHandler implements Runnable {
                         //Размер (байт) файла после которого отключается режим кэширования (если файл больше этого размера, тогда файл читается напрямую с жесткого диска)
                         query.sendByteFile(file);
                         return;
-                    }else if (!ServerConstant.config.DEBUG)  { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
+                    } else if (!ServerConstant.config.DEBUG) { // если не влючен режим отладки сервера , тогда  кэширкем отправляемый контент
                         // Если ресурс не был ранее прочитан, или дата модификации была изменена, тогда читаем ресурс снова
                         if ((resources.get(resourcePath) == null) || !resourcesDateTime.get(resourcePath).equals(lastModified)) {
                             res = new Resource(readResource(file, query, resourcePath, ServerConstant.config.WEBAPP_DIR));
@@ -325,7 +333,7 @@ public class ServerResourceHandler implements Runnable {
         if ((httpExchange.expansion.equals("html") || httpExchange.expansion.equals("js")) && (httpExchange.sessionID.length() == 0)) {
             // Скорее всего не правильная инициализация сессии (Возможно ПЕРЕРАБОТАТЬ)
             UUID uuid = UUID.randomUUID();
-            httpExchange.response.put("Set-Cookie","session="+uuid+"; debug="+ServerConstant.config.DEBUG+";");
+            httpExchange.response.put("Set-Cookie", "session=" + uuid + "; debug=" + ServerConstant.config.DEBUG + ";");
         }
         if (!sessionList.containsKey(httpExchange.sessionID)) {
             userSession = new HashMap<>();
@@ -379,7 +387,8 @@ public class ServerResourceHandler implements Runnable {
         public Resource(byte[] content) {
             this.content = content;
         }
-        public Resource(byte[] content,String mimeType) {
+
+        public Resource(byte[] content, String mimeType) {
             this.content = content;
             this.mimeType = mimeType;
         }

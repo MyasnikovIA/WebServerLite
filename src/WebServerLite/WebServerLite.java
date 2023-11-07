@@ -1,17 +1,25 @@
 package WebServerLite;
 
 import constant.ServerConstant;
+import org.json.JSONException;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WebServerLite implements Runnable {
+    public static HashMap<String, CallbackPage> pagesList = new HashMap<String, CallbackPage>(10, (float) 0.5);
     private static final Logger LOGGER = Logger.getLogger(WebServerLite.class.getName());
     private static WebServerLite server;
     private static boolean isRunServer = false;
-
+    public interface CallbackPage {
+        public byte[] call(HttpExchange query);
+    }
     public static void start(String[] args) {
         if (args.length == 0) {
             ServerConstant.config = new ServerConstant("config.ini");
@@ -33,6 +41,9 @@ public class WebServerLite implements Runnable {
         isRunServer = false;
     }
 
+    public void onPage(String query, CallbackPage callbackPage) {
+        this.pagesList.put(query, callbackPage);
+    }
     @Override
     public void run() {
         int port = Integer.parseInt(ServerConstant.config.DEFAULT_PORT);
