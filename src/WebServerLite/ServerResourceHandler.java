@@ -218,10 +218,12 @@ public class ServerResourceHandler implements Runnable {
             if (WebServerLite.pagesList.containsKey(query.requestPath)) {
                 byte[] res = WebServerLite.pagesList.get(query.requestPath).call(query);
                 if (res != null) {
-                    if (query.mimeType.equals("html")){
-
+                    if (query.mimeType.equals("html")) {
+                        res = readResourceContent(new String(res), resourcePath,  ServerConstant.config.WEBAPP_DIR);
+                        query.sendHtml(res);
+                    } else {
+                        query.sendHtml(res);
                     }
-                    query.sendHtml(res);
                 }
             } else if (file.exists()) {
                 String lastModified = String.valueOf(new Date(file.lastModified()));
@@ -262,7 +264,26 @@ public class ServerResourceHandler implements Runnable {
             }
         }
     }
-
+    private byte[] readResourceContent(final String fileContent, String resourcePath, String rootPath) {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        OutputStream gout = new DataOutputStream(bout);
+        Path path = Paths.get(resourcePath);
+        Document doc = Jsoup.parse(fileContent); // парсим HTML страницу  с использованием библиотеки jsoup-1.15.4.jar
+        Element els = doc.getElementsByTag("body").get(0);
+        doc.attr("doc_path", resourcePath);
+        doc.attr("rootPath", rootPath);
+        parseElementV2(doc, els, null);
+        doc.removeAttr("doc_path");
+        doc.removeAttr("rootPath");
+        doc.getElementsByTag("body").get(0).replaceWith(els);
+        Element elsDst = doc.getElementsByTag("html").get(0);
+        try {
+            gout.write(elsDst.toString().getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return bout.toByteArray();
+    }
     private byte[] readResource(final File file, final HttpExchange query, String resourcePath, String rootPath) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         try {
