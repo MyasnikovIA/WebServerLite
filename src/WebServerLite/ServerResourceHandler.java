@@ -197,6 +197,11 @@ public class ServerResourceHandler implements Runnable {
      */
     private void sendResponseQuery() {
         query.mimeType = getFileMime(query.requestPath);
+        if (query.requestParam.has("mime")) {
+            query.mimeType = getFileMime(query.requestParam.getString("mime"));
+        }else if (query.requestParam.has("mimetype")) {
+            query.mimeType = query.requestParam.getString("mimetype");
+        }
         String ext = getFileExt(query.requestPath).toLowerCase();
         if (query.requestParam.has("debug")) {
             ServerConstant.config.DEBUG = query.requestParam.getString("debug").equals("1");
@@ -208,17 +213,22 @@ public class ServerResourceHandler implements Runnable {
             ServerResourceHandler.javaStrExecut.runJavaComponent(query);
         } else {
             String resourcePath = ServerConstant.config.WEBAPP_DIR + "/" + query.requestPath;
+            if (WebServerLite.pagesListFile.containsKey(query.requestPath)) {
+                resourcePath = WebServerLite.pagesListFile.get(query.requestPath).getAbsolutePath();
+            }
             // System.out.println(resourcePath);
             File file = new File(resourcePath);
             if (!file.exists() && ServerConstant.config.WEBAPP_SYSTEM_DIR.length() > 0) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
                 file = new File(resourcePath);
             }
-            if (WebServerLite.pagesList.containsKey(query.requestPath)) {
+            if (WebServerLite.pagesListContent.containsKey(query.requestPath)) {
+                query.sendHtml(WebServerLite.pagesListContent.get(query.requestPath).toString());
+            } else if (WebServerLite.pagesList.containsKey(query.requestPath)) {
                 byte[] res = WebServerLite.pagesList.get(query.requestPath).call(query);
                 if (res != null) {
                     if (query.mimeType.equals("html")) {
-                        res = readResourceContent(new String(res), resourcePath,  ServerConstant.config.WEBAPP_DIR);
+                        res = readResourceContent(new String(res), resourcePath, ServerConstant.config.WEBAPP_DIR);
                         query.sendHtml(res);
                     } else {
                         query.sendHtml(res);
@@ -253,16 +263,19 @@ public class ServerResourceHandler implements Runnable {
             } else {
                 // Если ресурс не найден, тогда отправляем пустую страницу с сообщением "Page not found"
                 query.mimeType = "text/html";
-                if (new File(ServerConstant.config.WEBAPP_DIR + "/" + ServerConstant.config.PAGE_404).exists()) {
-                    query.sendFile(ServerConstant.config.WEBAPP_DIR + "/" + ServerConstant.config.PAGE_404);
-                } else if (new File(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404).exists()) {
-                    query.sendFile(ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + ServerConstant.config.PAGE_404);
+                if (ServerConstant.config.PAGE_404.length() == 0) {
+                    query.sendHtml("Page not found");
+                } else if (new File(ServerConstant.config.WEBAPP_DIR + ServerConstant.config.PAGE_404).exists()) {
+                    query.sendFile(ServerConstant.config.WEBAPP_DIR + ServerConstant.config.PAGE_404);
+                } else if (new File(ServerConstant.config.WEBAPP_SYSTEM_DIR + ServerConstant.config.PAGE_404).exists()) {
+                    query.sendFile(ServerConstant.config.WEBAPP_SYSTEM_DIR + ServerConstant.config.PAGE_404);
                 } else {
                     query.sendHtml("Page not found");
                 }
             }
         }
     }
+
     private byte[] readResourceContent(final String fileContent, String resourcePath, String rootPath) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         OutputStream gout = new DataOutputStream(bout);
@@ -283,6 +296,7 @@ public class ServerResourceHandler implements Runnable {
         }
         return bout.toByteArray();
     }
+
     private byte[] readResource(final File file, final HttpExchange query, String resourcePath, String rootPath) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         try {

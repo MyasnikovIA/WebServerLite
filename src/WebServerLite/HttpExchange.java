@@ -80,23 +80,26 @@ public class HttpExchange {
     }
 
     public void sendFile(String pathFile) {
-        StringBuffer sb = new StringBuffer();
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader(pathFile));
-            String line = reader.readLine();
-            while (line != null) {
-                if (line.indexOf('#') != -1) {
-                    line = line.split("#")[0];
+        System.out.println(new File(pathFile).getAbsolutePath());
+        if (new File(pathFile).exists()) {
+            StringBuffer sb = new StringBuffer();
+            BufferedReader reader;
+            try {
+                reader = new BufferedReader(new FileReader(pathFile));
+                String line = reader.readLine();
+                while (line != null) {
+                    if (line.indexOf('#') != -1) {
+                        line = line.split("#")[0];
+                    }
+                    sb.append(line);
+                    line = reader.readLine();
                 }
-                sb.append(line);
-                line = reader.readLine();
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            reader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            sendHtml(sb.toString());
         }
-        sendHtml(sb.toString());
     }
 
     /**

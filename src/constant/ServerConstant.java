@@ -4,14 +4,24 @@ import WebServerLite.RunProcess;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public final class ServerConstant {
 
-    public static ServerConstant config;
+    public static ServerConstant config = new ServerConstant("");
 
     public ServerConstant(String pathIniConfig) {
+        if (pathIniConfig.length()==0) return;
+        if (new File(pathIniConfig).exists()) {
+            this.LIB_CSS.clear();
+            this.LIB_JS.clear();
+            return;
+        }
+        initStr(initFile(pathIniConfig));
+    }
+    public String initFile(String pathIniConfig) {
         StringBuffer sb = new StringBuffer();
         BufferedReader reader;
         try {
@@ -28,8 +38,10 @@ public final class ServerConstant {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return sb.toString().trim();
+    }
+    private void initStr(String sb) {
         JSONObject jsonIni = new JSONObject(sb.toString().trim());
-
         // подключение к БД под пользователем, который иммет права создавать новые процедуры и функции
         if (jsonIni.has("DATABASE_NAME")) this.DATABASE_NAME = jsonIni.getString("DATABASE_NAME");
         if (jsonIni.has("DATABASE_USER_NAME")) this.DATABASE_USER_NAME = jsonIni.getString("DATABASE_USER_NAME");
@@ -121,6 +133,87 @@ public final class ServerConstant {
         }
     }
 
+    /**
+     * Инициализация свойства конфигурации
+     * @param confPropName
+     * @param confPropValue
+     * @return
+     */
+    public static boolean setProp(String confPropName, String confPropValue) {
+        boolean res = true;
+        try {
+            Field heightField = ServerConstant.config.getClass().getDeclaredField(confPropName);
+            heightField.setAccessible(true);
+            if (heightField.getGenericType().getTypeName().toLowerCase().equals("java.lang.string")) {
+                String propVal = confPropValue;
+                heightField.set(ServerConstant.config, propVal);
+            } else {
+                res = false;
+            }
+        } catch (Exception e) {
+            res = false;
+            System.err.println(e.getMessage());
+        }
+        return res;
+    }
+
+    /**
+     * Инициализация свойства конфигурации
+     * @param confPropName
+     * @param confPropValue
+     * @return
+     */
+    public static boolean setProp(String confPropName, Boolean confPropValue) {
+        boolean res = true;
+        try {
+            Field heightField = ServerConstant.config.getClass().getDeclaredField(confPropName);
+            heightField.setAccessible(true);
+            if (heightField.getGenericType().getTypeName().toLowerCase().equals("java.lang.boolean")) {
+                heightField.setBoolean(ServerConstant.config, confPropValue);
+            } else {
+                res = false;
+            }
+        } catch (NoSuchFieldException e) {
+            res = false;
+            System.err.println(e.getMessage());
+        } catch (IllegalAccessException e) {
+            res = false;
+            System.err.println(e.getMessage());
+        }
+        return res;
+    }
+    /***
+     * Добавить путь к css библиотеке
+     * @param path
+     */
+    public void addPathCss(String path) {
+        this.LIB_CSS.add(path);
+    }
+    /***
+     * Добавить путь к JS библиотеке
+     * @param path
+     */
+    public void addPathJs(String path) {
+        this.LIB_JS.add(path);
+    }
+    /***
+     * Добавить путь к Jar библиотеке
+     * @param path
+     */
+    public void addPathJar(String path) {
+        this.LIB_JAR.add(path);
+    }
+
+
+    /**
+     * Добавление MIME типа
+     * @param paextensFile
+     * @param mime
+     */
+    public void addMime(String paextensFile ,String mime) {
+        this.MIME_MAP.put(paextensFile, mime);
+    }
+
     public static boolean gitClone(String gitUrl, String master, String localPath) {
         String dirPath = localPath.substring(0, localPath.lastIndexOf("/"));
         String dirName = localPath.substring(localPath.lastIndexOf("/") + 1);
@@ -132,6 +225,9 @@ public final class ServerConstant {
         return true;
     }
 
+
+
+
     public static String DATABASE_NAME = "jdbc:postgresql://your_host:your_port/your_database"; // путь к БД
     public static String DATABASE_USER_NAME = "postgres";
     public static String DATABASE_USER_PASS = "******";
@@ -142,8 +238,8 @@ public final class ServerConstant {
     public static Boolean GZIPPABLE = false; // Параметр сжатия страниц, если  это поддерживает браузер
     public static Boolean CAHEBLE = true; // Параметр кэширования страниц
 
-    public static String LOGIN_PAGE = "/"; // страница авторизации пользователя в БД
-    public static String PAGE_404 = "/";  // Страница 404 отсутствие содержимого
+    public static String LOGIN_PAGE = ""; // страница авторизации пользователя в БД
+    public static String PAGE_404 = "";  // Страница 404 отсутствие содержимого
     public static String FORWARD_SINGLE_SLASH = "/";
     public static String FORWARD_DOUBLE_SLASH = "//";
     public static String COMPONENT_PATH = "component"; // путь к хранению компонентов, для динамического переключения между стилями и реализациями

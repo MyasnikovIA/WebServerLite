@@ -5,6 +5,7 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.http.HttpResponse;
@@ -14,18 +15,15 @@ import java.util.logging.Logger;
 
 public class WebServerLite implements Runnable {
     public static HashMap<String, CallbackPage> pagesList = new HashMap<String, CallbackPage>(10, (float) 0.5);
+    public static HashMap<String, File> pagesListFile = new HashMap<String, File>(10, (float) 0.5);
+    public static HashMap<String, StringBuffer> pagesListContent = new HashMap<String, StringBuffer>(10, (float) 0.5);
     private static final Logger LOGGER = Logger.getLogger(WebServerLite.class.getName());
     private static WebServerLite server;
     private static boolean isRunServer = false;
     public interface CallbackPage {
         public byte[] call(HttpExchange query);
     }
-    public static void start(String[] args) {
-        if (args.length == 0) {
-            ServerConstant.config = new ServerConstant("config.ini");
-        } else if (args.length == 1) {
-            ServerConstant.config = new ServerConstant(args[0]);
-        }
+    public static void start() {
         server = new WebServerLite();
         Thread thread = new Thread(server);
         thread.start();
@@ -40,6 +38,12 @@ public class WebServerLite implements Runnable {
     public static void stop(int delay) {
         isRunServer = false;
     }
+    public void onPage(String path, StringBuffer contentText) {
+        this.pagesListContent.put(path, contentText);
+    }
+    public void onPage(String path, StringBuffer contentText,String mime) {
+        this.pagesListContent.put(path, contentText);
+    }
 
     /**
      * прописывание контента в Java коде
@@ -48,6 +52,22 @@ public class WebServerLite implements Runnable {
      */
     public void onPage(String path, CallbackPage callbackPage) {
         this.pagesList.put(path, callbackPage);
+    }
+    public void onPage(String path, File file) {
+        this.pagesListFile.put(path, file);
+    }
+    public void initConfig(String args) {
+        if (args.length() == 0) {
+            ServerConstant.config = new ServerConstant("config.ini");
+        } else {
+            ServerConstant.config = new ServerConstant(args);
+        }
+    }
+    public Boolean config(String confPropName, String confPropValue) {
+        return ServerConstant.config.setProp(confPropName, confPropValue);
+    }
+    public Boolean config(String confPropName, Boolean confPropValue) {
+        return ServerConstant.config.setProp(confPropName, confPropValue);
     }
     @Override
     public void run() {
@@ -77,7 +97,6 @@ public class WebServerLite implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         synchronized (server) {
             server.notifyAll();
         }
