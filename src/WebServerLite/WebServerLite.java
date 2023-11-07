@@ -41,8 +41,13 @@ public class WebServerLite implements Runnable {
         isRunServer = false;
     }
 
-    public void onPage(String query, CallbackPage callbackPage) {
-        this.pagesList.put(query, callbackPage);
+    /**
+     * прописывание контента в Java коде
+     * @param path - путь к вызываемому содержимому
+     * @param callbackPage - JAVA код страницы
+     */
+    public void onPage(String path, CallbackPage callbackPage) {
+        this.pagesList.put(path, callbackPage);
     }
     @Override
     public void run() {
