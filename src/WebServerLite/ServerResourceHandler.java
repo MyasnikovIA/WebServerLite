@@ -208,8 +208,7 @@ public class ServerResourceHandler implements Runnable {
             ServerResourceHandler.javaStrExecut.runJavaComponent(query);
         } else {
             String resourcePath = ServerConstant.config.WEBAPP_DIR + "/" + query.requestPath;
-            System.out.println(resourcePath);
-
+            // System.out.println(resourcePath);
             File file = new File(resourcePath);
             if (!file.exists() && ServerConstant.config.WEBAPP_SYSTEM_DIR.length() > 0) { // если пользовательском каталоге нет вызываемого ресурса, тогда веняем каталог на системный
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
