@@ -55,6 +55,7 @@ public class WebServerLite implements Runnable {
         try {
             isRunServer = true;
             System.out.println("port:"+port);
+            System.out.println("http://127.0.0.1:"+port+"/");
             ServerSocket ss = new ServerSocket(port);
             while (isRunServer == true) {
                 // ждем новое подключение Socket клиента
