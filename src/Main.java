@@ -21,7 +21,11 @@ public class Main {
         // web.onPage("test2.js",new StringBuffer("alert(1)"));
 
         // Указать путь к файлу с конфигурацией
-        // web.initConfig(args[0]);
+        if (args.length>0) {
+            web.initConfig(args[0]);
+        } else {
+            web.initConfig("");
+        }
 
         // Инициализация конфигурации
         // web.config("INDEX_PAGE" , "test.html");

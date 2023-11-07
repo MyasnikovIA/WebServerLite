@@ -15,11 +15,11 @@ public final class ServerConstant {
     public ServerConstant(String pathIniConfig) {
         if (pathIniConfig.length()==0) return;
         if (new File(pathIniConfig).exists()) {
+            initStr(initFile(pathIniConfig));
+        } else {
             this.LIB_CSS.clear();
             this.LIB_JS.clear();
-            return;
         }
-        initStr(initFile(pathIniConfig));
     }
     public String initFile(String pathIniConfig) {
         StringBuffer sb = new StringBuffer();
@@ -248,7 +248,7 @@ public final class ServerConstant {
     public static String WEBAPP_SYSTEM_DIR = "www"; // путь к статичным ресурсам системы сервера
 
     public static String DEFAULT_HOST = "0.0.0.0";
-    public static String DEFAULT_PORT = "8081"; // порт на котором будет работать сервер
+    public static String DEFAULT_PORT = "9092"; // порт на котором будет работать сервер
     public static int LENGTH_CAHE = 10485760;  // (10Мб) Размер файла после которого отключается режим кэширования (если файл больше этого размера, тогда файл читается напрямую с жесткого диска)
 
     //public static  String SERVER_HOM = "D:\\JavaProject\\HttpServer-JAVA-"; //  домашний каталог сервера
