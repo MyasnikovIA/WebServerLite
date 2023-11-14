@@ -1,8 +1,16 @@
 import WebServerLite.WebServerLite;
 import WebServerLite.HttpExchange;
+import WebServerLite.PacketManager;
+
+import java.io.IOException;
+import java.util.List;
+
+import static WebServerLite.PacketManager.getWebPage;
+
+
 public class Main {
     public static void main(String[] args) {
-        WebServerLite web = new WebServerLite();
+        WebServerLite web = new WebServerLite(Main.class);
 
         // Инициализация  страницы  в коде
         web.onPage("test.html", (HttpExchange query) -> {
@@ -21,12 +29,11 @@ public class Main {
         // web.onPage("test2.js",new StringBuffer("alert(1)"));
 
         // Указать путь к файлу с конфигурацией
-        if (args.length>0) {
+        if (args.length > 0) {
             web.initConfig(args[0]);
         } else {
             web.initConfig("");
         }
-
         // Инициализация конфигурации
         // web.config("INDEX_PAGE" , "test.html");
 

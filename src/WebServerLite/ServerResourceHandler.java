@@ -10,6 +10,8 @@ import org.jsoup.nodes.Element;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -222,7 +224,23 @@ public class ServerResourceHandler implements Runnable {
                 resourcePath = ServerConstant.config.WEBAPP_SYSTEM_DIR + "/" + query.requestPath;
                 file = new File(resourcePath);
             }
-            if (WebServerLite.pagesListContent.containsKey(query.requestPath)) {
+            if (WebServerLite.pagesJavaInnerClass.containsKey(query.requestPath)) {
+                JavaInnerClassObject page = WebServerLite.pagesJavaInnerClass.get(query.requestPath);
+                Method meth = page.method;   // получаем метод по имени и типам входящих переменных
+                query.mimeType = page.mime;
+                byte[] messageBytes = new byte[0]; // запуск метода на выполнение
+                try {
+                    messageBytes = (byte[]) meth.invoke(page.ObjectInstance, query);
+                } catch (IllegalAccessException e) {
+                    query.sendHtml("IllegalAccessException ERROR: "+e.toString());
+                    // throw new RuntimeException(e);
+                } catch (InvocationTargetException e) {
+                    query.sendHtml("InvocationTargetException ERROR: "+e.toString());
+                    // throw new RuntimeException(e);
+                }
+                if (messageBytes != null)
+                    query.sendHtml(messageBytes);
+            } else if (WebServerLite.pagesListContent.containsKey(query.requestPath)) {
                 query.sendHtml(WebServerLite.pagesListContent.get(query.requestPath).toString());
             } else if (WebServerLite.pagesList.containsKey(query.requestPath)) {
                 byte[] res = WebServerLite.pagesList.get(query.requestPath).call(query);

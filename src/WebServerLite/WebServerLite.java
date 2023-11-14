@@ -1,27 +1,32 @@
 package WebServerLite;
 
 import constant.ServerConstant;
-import org.json.JSONException;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static WebServerLite.PacketManager.getWebPage;
 
 public class WebServerLite implements Runnable {
     public static HashMap<String, CallbackPage> pagesList = new HashMap<String, CallbackPage>(10, (float) 0.5);
     public static HashMap<String, File> pagesListFile = new HashMap<String, File>(10, (float) 0.5);
     public static HashMap<String, StringBuffer> pagesListContent = new HashMap<String, StringBuffer>(10, (float) 0.5);
+    public static HashMap<String, JavaInnerClassObject> pagesJavaInnerClass = new HashMap<String, JavaInnerClassObject>(10, (float) 0.5);
     private static final Logger LOGGER = Logger.getLogger(WebServerLite.class.getName());
     private static WebServerLite server;
     private static boolean isRunServer = false;
     public interface CallbackPage {
         public byte[] call(HttpExchange query);
+    }
+
+    public WebServerLite() { }
+    public WebServerLite(Class<?> mainClass) {
+       // System.out.println(getWebPage(Main.class));
+        System.out.println("Список страниц "+getWebPage(mainClass));
     }
     public static void start() {
         server = new WebServerLite();

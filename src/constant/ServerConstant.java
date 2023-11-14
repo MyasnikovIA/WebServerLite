@@ -225,9 +225,6 @@ public final class ServerConstant {
         return true;
     }
 
-
-
-
     public static String DATABASE_NAME = "jdbc:postgresql://your_host:your_port/your_database"; // путь к БД
     public static String DATABASE_USER_NAME = "postgres";
     public static String DATABASE_USER_PASS = "******";

@@ -462,8 +462,8 @@ public class JavaStrExecut {
         String classNameCmp = query.requestPath.substring(0, query.requestPath.length() - ".component".length()).replaceAll("/", ".");
         try {
             Class[] argTypes = new Class[]{HttpExchange.class};
-            Class<?> helloWorldClass = Class.forName(classNameCmp);
-            Method meth = helloWorldClass.getMethod("onPage", argTypes);
+            Class<?> classNat = Class.forName(classNameCmp);
+            Method meth = classNat.getMethod("onPage", argTypes);
             byte[] messageBytes = (byte[]) meth.invoke(null, query); // запуск мектода на выполнение
             if (messageBytes != null) {
                 query.sendHtml(messageBytes);
