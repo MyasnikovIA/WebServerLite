@@ -56,7 +56,9 @@ public class PacketManager {
         if (pathJarFile.indexOf("jar:file:/")!=-1) {
             pathJarFile = pathJarFile.substring(pathJarFile.indexOf("jar:file:/")+"jar:file:/".length());
         }
-        System.out.println(pathJarFile);
+        if (System.getProperty("os.name").toLowerCase().indexOf("linux")!=-1) {
+            pathJarFile = "/"+pathJarFile;
+        }
         List<Class<?>> classes = new ArrayList<>();
         ZipInputStream zip = null;
         try {
