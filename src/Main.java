@@ -34,6 +34,11 @@ public class Main {
         } else {
             web.initConfig("");
         }
+
+        // Подгрузить страницы из Jar файла
+        // web.addPageJar("c:\jar\myJarPage.jar");
+
+
         // Инициализация конфигурации
         // web.config("INDEX_PAGE" , "test.html");
 

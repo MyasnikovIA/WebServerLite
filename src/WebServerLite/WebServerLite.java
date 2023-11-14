@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static WebServerLite.PacketManager.getPageJar;
 import static WebServerLite.PacketManager.getWebPage;
 
 public class WebServerLite implements Runnable {
@@ -74,6 +75,15 @@ public class WebServerLite implements Runnable {
     public Boolean config(String confPropName, Boolean confPropValue) {
         return ServerConstant.config.setProp(confPropName, confPropValue);
     }
+
+    /**
+     * Подключить к серверу сторонние Jar файлы ВЭБ страниц
+     * @param pathJarFile
+     */
+    public void addPageJar(String pathJarFile) {
+        System.out.println("Список страниц из Jar файла "+getPageJar(pathJarFile));
+    }
+
     @Override
     public void run() {
         int port = Integer.parseInt(ServerConstant.config.DEFAULT_PORT);
