@@ -32,8 +32,9 @@ public class HttpExchange {
 
     public String webappDir = "";
 
-
     public String expansion = "";
+
+    public StringBuffer HeadSrc = new StringBuffer();
     public byte[] postBody = null;
     public JSONObject requestParam = new JSONObject();
 

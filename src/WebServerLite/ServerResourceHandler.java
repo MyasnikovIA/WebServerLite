@@ -63,7 +63,7 @@ public class ServerResourceHandler implements Runnable {
         StringBuffer sb = new StringBuffer();
         StringBuffer sbTmp = new StringBuffer();
         // читаем заголовок HTML запроса
-        while ((charInt = query.inputStreamReader.read()) > 0) {
+        while (query.socket.isConnected() && (charInt = query.inputStreamReader.read()) > 0) {
             if (query.socket.isConnected() == false) return false;
             sbTmp.append((char) charInt);
             if ((sbTmp.toString().indexOf("\r") != -1) || (sbTmp.toString().indexOf("\n") != -1) || (charInt == 0)) {
@@ -83,6 +83,7 @@ public class ServerResourceHandler implements Runnable {
             }
         }
         query.typeQuery = "GET";
+        query.HeadSrc = sb;
         if (sb.toString().indexOf("Content-Length: ") != -1) {
             // Читаем тело POST запроса
             String sbTmp2 = sb.toString().substring(sb.toString().indexOf("Content-Length: ") + "Content-Length: ".length(), sb.toString().length());
@@ -119,8 +120,15 @@ public class ServerResourceHandler implements Runnable {
                 if (titleLine.indexOf("GET /") != -1) {
                     titleLine = titleLine.replaceAll("GET /", "");
                     query.typeQuery = "GET";
+                } else if (titleLine.substring(0, 3).equals("GET")) {
+                    titleLine = titleLine.substring(4);
+                    query.typeQuery = "GET";
                 } else if (titleLine.indexOf("POST /") != -1) {
                     titleLine = titleLine.replaceAll("POST /", "");
+                    query.typeQuery = "POST";
+                } else if (titleLine.substring(0, 4).equals("POST")) {
+                    titleLine = titleLine.substring(5);
+                    query.typeQuery = "POST";
                 } else if (titleLine.indexOf("TERM /") != -1) {
                     titleLine = titleLine.replaceAll("TERM /", "");
                     query.typeQuery = "TERM";
@@ -290,6 +298,11 @@ public class ServerResourceHandler implements Runnable {
                 } else {
                     query.sendHtml("Page not found");
                 }
+                System.out.println("------------------------------------");
+                System.out.println("query.requestPath "+query.requestPath);
+                System.out.println("query.requestParam "+query.requestParam);
+                System.out.println(query.HeadSrc);
+                System.out.println("------------------------------------");
             }
         }
     }
