@@ -3,6 +3,7 @@ package WebServerLite;
 import constant.ServerConstant;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -124,6 +125,19 @@ public class WebServerLite implements Runnable {
         @Override
         public void run() {
             WebServerLite.shutDown();
+        }
+    }
+    protected synchronized static void WriteToFile(String stringMessage) {
+        if (ServerConstant.config.LOG_FILE.length()==0) {
+            System.err.println(stringMessage);
+        } else {
+            try {
+                FileWriter filelog = new FileWriter(new File(ServerConstant.config.LOG_FILE), true);
+                filelog.write(stringMessage);
+                filelog.flush();
+            } catch (Exception error) {
+                System.err.println(error);
+            }
         }
     }
 

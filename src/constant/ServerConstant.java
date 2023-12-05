@@ -80,6 +80,7 @@ public final class ServerConstant {
         if (jsonIni.has("GIT_MASTER")) this.GIT_MASTER = jsonIni.getString("GIT_MASTER");
         if (jsonIni.has("GIT_URL")) this.GIT_URL = jsonIni.getString("GIT_URL");
         if (jsonIni.has("GIT_INTERVAL")) this.GIT_INTERVAL = jsonIni.getString("GIT_INTERVAL");
+        if (jsonIni.has("LOG_FILE")) this.LOG_FILE = jsonIni.getString("LOG_FILE");
         if (jsonIni.has("LIB_CSS")) {
             this.LIB_CSS.clear();
             Iterator iterator = jsonIni.getJSONArray("LIB_CSS").iterator();
@@ -264,6 +265,8 @@ public final class ServerConstant {
     public static String GIT_URL = "";
     public static String GIT_MASTER = "";
     public static String GIT_INTERVAL = "120"; // порт на котором будет работать сервер
+
+    public static String LOG_FILE = ""; // путь к файлу логирования
 
     public static List<String> LIB_CSS = new ArrayList<>();
 

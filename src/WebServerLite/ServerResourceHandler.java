@@ -18,9 +18,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static WebServerLite.WebServerLite.WriteToFile;
 
 public class ServerResourceHandler implements Runnable {
 
@@ -117,17 +121,17 @@ public class ServerResourceHandler implements Runnable {
             titleLine = titleLine.replace("\n", "");
             indLine++;
             if (indLine == 1) {
-                if (titleLine.indexOf("GET /") != -1) {
+                if (titleLine.substring(0, 3).equals("GET")) {
+                   titleLine = titleLine.substring(5);
+                   query.typeQuery = "GET";
+                } else  if (titleLine.indexOf("GET /") != -1) {
                     titleLine = titleLine.replaceAll("GET /", "");
-                    query.typeQuery = "GET";
-                } else if (titleLine.substring(0, 3).equals("GET")) {
-                    titleLine = titleLine.substring(4);
                     query.typeQuery = "GET";
                 } else if (titleLine.indexOf("POST /") != -1) {
                     titleLine = titleLine.replaceAll("POST /", "");
                     query.typeQuery = "POST";
                 } else if (titleLine.substring(0, 4).equals("POST")) {
-                    titleLine = titleLine.substring(5);
+                    titleLine = titleLine.substring(6);
                     query.typeQuery = "POST";
                 } else if (titleLine.indexOf("TERM /") != -1) {
                     titleLine = titleLine.replaceAll("TERM /", "");
@@ -298,11 +302,19 @@ public class ServerResourceHandler implements Runnable {
                 } else {
                     query.sendHtml("Page not found");
                 }
-                System.out.println("------------------------------------");
-                System.out.println("query.requestPath "+query.requestPath);
-                System.out.println("query.requestParam "+query.requestParam);
-                System.out.println(query.HeadSrc);
-                System.out.println("------------------------------------");
+                WriteToFile("------------------------------------\r\n");
+                // Date date = Calendar.getInstance().getTime();
+                // DateFormat dateFormat = new SimpleDateFormat("hh:mm:ss dd-mm-yyyy");
+                // String strDate = dateFormat.format(date);
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+                LocalDateTime now = LocalDateTime.now();
+                System.out.println(dtf.format(now));
+                String strDate =dtf.format(now);
+                WriteToFile("\r\n"+strDate+"(NSO +7 )\r\n");
+                WriteToFile("query.requestPath "+query.requestPath);
+                WriteToFile("\r\nquery.requestParam "+query.requestParam+"\r\n");
+                WriteToFile(query.HeadSrc.toString());
+                WriteToFile("\r\n------------------------------------\r\n");
             }
         }
     }
