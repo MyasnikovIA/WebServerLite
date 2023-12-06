@@ -130,7 +130,7 @@ public class ServerResourceHandler implements Runnable {
                 } else if (titleLine.indexOf("POST /") != -1) {
                     titleLine = titleLine.replaceAll("POST /", "");
                     query.typeQuery = "POST";
-                } else if (titleLine.substring(0, 4).equals("POST")) {
+                } else if (titleLine.length() > 3 && (titleLine.substring(0, 4).equals("POST"))) {
                     titleLine = titleLine.substring(6);
                     query.typeQuery = "POST";
                 } else if (titleLine.indexOf("TERM /") != -1) {
