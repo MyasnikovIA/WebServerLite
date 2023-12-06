@@ -121,7 +121,8 @@ public class ServerResourceHandler implements Runnable {
             titleLine = titleLine.replace("\n", "");
             indLine++;
             if (indLine == 1) {
-                if (titleLine.substring(0, 3).equals("GET")) {
+                int lenTitle = titleLine.length();
+                if ((lenTitle > 2 && titleLine.substring(0, 3).equals("GET"))) {
                    titleLine = titleLine.substring(5);
                    query.typeQuery = "GET";
                 } else  if (titleLine.indexOf("GET /") != -1) {
@@ -130,7 +131,7 @@ public class ServerResourceHandler implements Runnable {
                 } else if (titleLine.indexOf("POST /") != -1) {
                     titleLine = titleLine.replaceAll("POST /", "");
                     query.typeQuery = "POST";
-                } else if (titleLine.length() > 3 && (titleLine.substring(0, 4).equals("POST"))) {
+                } else if (lenTitle > 3 && (titleLine.substring(0, 4).equals("POST"))) {
                     titleLine = titleLine.substring(6);
                     query.typeQuery = "POST";
                 } else if (titleLine.indexOf("TERM /") != -1) {
