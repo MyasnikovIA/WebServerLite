@@ -20,6 +20,7 @@ public class PacketManager {
     /**
      * Собираем список классов у которых есть анотация WebServerLite.onPage.class на методе
      * Универсальный метод для классов и Jar файлов
+     *
      * @param mainClass
      * @return
      */
@@ -49,15 +50,16 @@ public class PacketManager {
 
     /**
      * Собираем список классов у которых есть анотация WebServerLite.onPage.class на методе
+     *
      * @param pathJarFile
      * @return
      */
     public static List<Class<?>> getPageJar(String pathJarFile) {
-        if (pathJarFile.indexOf("jar:file:/")!=-1) {
-            pathJarFile = pathJarFile.substring(pathJarFile.indexOf("jar:file:/")+"jar:file:/".length());
+        if (pathJarFile.indexOf("jar:file:/") != -1) {
+            pathJarFile = pathJarFile.substring(pathJarFile.indexOf("jar:file:/") + "jar:file:/".length());
         }
-        if (System.getProperty("os.name").toLowerCase().indexOf("linux")!=-1) {
-            pathJarFile = "/"+pathJarFile;
+        if (System.getProperty("os.name").toLowerCase().indexOf("linux") != -1) {
+            pathJarFile = "/" + pathJarFile;
         }
         List<Class<?>> classes = new ArrayList<>();
         ZipInputStream zip = null;
@@ -85,35 +87,51 @@ public class PacketManager {
                     try {
                         clazz = Class.forName(classNameShot);
                     } catch (ClassNotFoundException e) {
-                        System.err.println("getPageJar ClassNotFoundException error: "+e);
+                        System.err.println("getPageJar ClassNotFoundException error: " + e);
                         // throw new RuntimeException(e);
                     }
-                    if (clazz==null) continue;
+                    if (clazz == null) continue;
                     Method[] methods2 = clazz.getMethods();
-                        for (Method method : methods2) {
-                            onPage anotation = (onPage) method.getAnnotation(onPage.class);
-                            if (anotation == null) continue;
-                            if (anotation == null) continue; // если нет анотации WebServerLite.onPage ,тогда пропускаем метод
-                            if ((method.getParameterTypes()[0]).equals("WebServerLite.HttpExchange")) continue; // если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
-                            JavaInnerClassObject page = new JavaInnerClassObject();
-                            page.ext = anotation.ext();
-                            page.mime = anotation.mime();
-                            page.method = method;
-                            try {
-                                page.ObjectInstance = clazz.newInstance(); // Создаем экземпляр класса (Java страницы)
-                            } catch (Exception e) {
-                                System.out.println("Error create class "+e.getMessage());
-                                continue;
+                    for (Method method : methods2) {
+                        onPage anotation = (onPage) method.getAnnotation(onPage.class);
+                        if (anotation != null) { // если нет анотации WebServerLite.onPage ,тогда пропускаем метод
+                            if ((method.getParameterTypes()[0]).equals("WebServerLite.HttpExchange") == false) {// если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
+                                JavaInnerClassObject page = new JavaInnerClassObject();
+                                page.ext = anotation.ext();
+                                page.mime = anotation.mime();
+                                page.method = method;
+                                try {
+                                    page.ObjectInstance = clazz.newInstance(); // Создаем экземпляр класса (Java страницы)
+                                } catch (Exception e) {
+                                    System.out.println("Error create class " + e.getMessage());
+                                    continue;
+                                }
+                                page.classNat = clazz;
+                                WebServerLite.pagesJavaInnerClass.put(anotation.url(), page);
+                                classes.add(clazz);
                             }
-                            page.classNat= clazz;
-                            WebServerLite.pagesJavaInnerClass.put(anotation.url(), page);
-                            classes.add(clazz);
                         }
-
+                        onTerminal anotationTerminal = (onTerminal) method.getAnnotation(onTerminal.class);
+                        if (anotationTerminal != null) { // если нет анотации WebServerLite.onTerminal ,тогда пропускаем метод
+                            if ((method.getParameterTypes()[0]).equals("WebServerLite.HttpExchange") == false) {// если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
+                                JavaTerminalClassObject term = new JavaTerminalClassObject();
+                                term.method = method;
+                                try {
+                                    term.ObjectInstance = clazz.newInstance(); // Создаем экземпляр класса (Java страницы)
+                                } catch (Exception e) {
+                                    System.out.println("Error create class " + e.getMessage());
+                                    continue;
+                                }
+                                term.classNat = clazz;
+                                WebServerLite.pagesJavaTerminalClass.put(anotationTerminal.url(), term);
+                                classes.add(clazz);
+                            }
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
-            System.err.println("getPageJar IOException error: "+e);
+            System.err.println("getPageJar IOException error: " + e);
             // throw new RuntimeException(e);
         }
         return classes;
@@ -130,19 +148,20 @@ public class PacketManager {
 
     /**
      * Получение списка классов в директории
+     *
      * @param directory
      * @param startDir
      * @return
      */
-    public static  List<String> searchFilesClass(File directory, File startDir) {
+    public static List<String> searchFilesClass(File directory, File startDir) {
         List<String> strClassesList = new ArrayList<>();
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    strClassesList.addAll(searchFilesClass(file,startDir)); // recursively search subdirectories
+                    strClassesList.addAll(searchFilesClass(file, startDir)); // recursively search subdirectories
                 } else {
-                    String fileStr = (file.getAbsolutePath().substring(startDir.getAbsolutePath().length()+1)).replace("\\",".");
+                    String fileStr = (file.getAbsolutePath().substring(startDir.getAbsolutePath().length() + 1)).replace("\\", ".");
                     if (fileStr.substring(fileStr.length() - 6).equals(".class")) {
                         fileStr = fileStr.substring(0, fileStr.length() - 6);
                         strClassesList.add(fileStr);
@@ -155,10 +174,11 @@ public class PacketManager {
 
     /**
      * Получение(регистрация) страниц из JAVA классов имеющие аннотацию WebServerLite.onPage
+     *
      * @param packageName
      * @return
      */
-    public static List<Class<?>> getPageClasses(String packageName){
+    public static List<Class<?>> getPageClasses(String packageName) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = null;
@@ -172,40 +192,57 @@ public class PacketManager {
             URL resource = resources.nextElement();
             File directory = new File(resource.getFile());
             if (directory.exists()) {
-                for (String className : searchFilesClass(directory,directory)){
+                for (String className : searchFilesClass(directory, directory)) {
                     Class<?> clazz = null;
                     try {
                         clazz = Class.forName(className);
                     } catch (ClassNotFoundException e) {
-                        System.err.println("ClassNotFoundException ERROR: "+e);
+                        System.err.println("ClassNotFoundException ERROR: " + e);
                     }
-                    if (className.indexOf("$")!=-1) continue;
+                    if (className.indexOf("$") != -1) continue;
                     if (clazz == null) continue;
                     for (Method method : clazz.getMethods()) {
-                        onPage anotation =  method.getAnnotation(onPage.class);
-                        if (anotation == null) continue; // если нет анотации WebServerLite.onPage ,тогда пропускаем метод
                         Class<?>[] parameterTypes = method.getParameterTypes();
-                        if (parameterTypes.length!=1)     continue;
-                        if ((parameterTypes[0]).equals("WebServerLite.HttpExchange")) continue; // если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
-                        JavaInnerClassObject page = new JavaInnerClassObject();
-                        page.ext = anotation.ext();
-                        page.mime = anotation.mime();
-                        page.method = method;
-                        try {
-                            page.ObjectInstance = clazz.newInstance();
-                        } catch (Exception e) {
-                            System.out.println("Error create class "+e.getMessage());
-                            continue;
+                        onPage anotation = method.getAnnotation(onPage.class);
+                        if (anotation != null) { // если нет анотации WebServerLite.onPage ,тогда пропускаем метод
+                            if ((parameterTypes.length == 1) && (parameterTypes[0]).equals("WebServerLite.HttpExchange") == false) {// если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
+                                JavaInnerClassObject page = new JavaInnerClassObject();
+                                page.ext = anotation.ext();
+                                page.mime = anotation.mime();
+                                page.method = method;
+                                try {
+                                    page.ObjectInstance = clazz.newInstance();
+                                } catch (Exception e) {
+                                    System.out.println("Error create class " + e.getMessage());
+                                    continue;
+                                }
+                                page.classNat = clazz;
+                                WebServerLite.pagesJavaInnerClass.put(anotation.url(), page);
+                                //  System.out.println("");
+                                //  System.out.println("--------------------------------------");
+                                //  System.out.println("className---" + className + "  " + method + "   " + anotation);
+                                //  System.out.println("URL---" + anotation.url() + "  ext=" + anotation.ext() + "   mime=" + anotation.mime());
+                                //  System.out.println("--------------------------------------");
+                                //  System.out.println("");
+                                classes.add(clazz);
+                            }
                         }
-                        page.classNat= clazz;
-                        WebServerLite.pagesJavaInnerClass.put(anotation.url(), page);
-                        //  System.out.println("");
-                        //  System.out.println("--------------------------------------");
-                        //  System.out.println("className---" + className + "  " + method + "   " + anotation);
-                        //  System.out.println("URL---" + anotation.url() + "  ext=" + anotation.ext() + "   mime=" + anotation.mime());
-                        //  System.out.println("--------------------------------------");
-                        //  System.out.println("");
-                        classes.add(clazz);
+                        onTerminal anotationTerminal = (onTerminal) method.getAnnotation(onTerminal.class);
+                        if (anotationTerminal != null) { // если нет анотации WebServerLite.onTerminal ,тогда пропускаем метод
+                            if ((parameterTypes.length == 1) && (method.getParameterTypes()[0]).equals("WebServerLite.HttpExchange") == false) {// если первый параметр не имеет тип WebServerLite.HttpExchange, тогда пропускаем этот метод
+                                JavaTerminalClassObject term = new JavaTerminalClassObject();
+                                term.method = method;
+                                try {
+                                    term.ObjectInstance = clazz.newInstance(); // Создаем экземпляр класса (Java страницы)
+                                } catch (Exception e) {
+                                    System.out.println("Error create class " + e.getMessage());
+                                    continue;
+                                }
+                                term.classNat = clazz;
+                                WebServerLite.pagesJavaTerminalClass.put(anotationTerminal.url(), term);
+                                classes.add(clazz);
+                            }
+                        }
                     }
                 }
             }

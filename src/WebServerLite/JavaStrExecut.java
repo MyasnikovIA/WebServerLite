@@ -350,20 +350,41 @@ public class JavaStrExecut {
         try {
             System.out.println("query.requestPath " + query.requestPath);
             System.out.println("ServerConstant.config.WEBAPP_DIR " + ServerConstant.config.WEBAPP_DIR);
-            if (compileFile(ServerConstant.config.WEBAPP_DIR, query.requestPath, infoCompile)) {
+            if (WebServerLite.pagesJavaTerminalClass.containsKey(query.requestPath)) {
                 query.mimeType = "text/html";
-                CompileObject compileObject = (CompileObject) InstanceClassName.get(query.requestPath);
-                Class[] argTypes = new Class[]{HttpExchange.class};
-                Method meth = compileObject.ClassNat.getMethod("onTerminal", argTypes);   // получаем метод по имени и типам входящих переменных
-                byte[] messageBytes = (byte[]) meth.invoke(compileObject.ObjectInstance, query); // запуск метода на выполнение
-                if (messageBytes == null)
-                    return true;                                                      // если возвращается NULL тогда ничего отправлять ненадо
-                query.write(messageBytes);
+                JavaTerminalClassObject term = WebServerLite.pagesJavaTerminalClass.get(query.requestPath);
+                Method meth = term.method;   // получаем метод по имени и типам входящих переменных
+                byte[] messageBytes = new byte[0]; // запуск метода на выполнение
+                try {
+                    messageBytes = (byte[]) meth.invoke(term.ObjectInstance, query);
+                } catch (IllegalAccessException e) {
+                    query.write("IllegalAccessException ERROR: " + e.toString());
+                    // throw new RuntimeException(e);
+                    return false;
+                } catch (InvocationTargetException e) {
+                    query.write("InvocationTargetException ERROR: " + e.toString());
+                    // throw new RuntimeException(e);
+                    return false;
+                }
+                if (messageBytes != null) {
+                    query.sendHtml(messageBytes);
+                }
             } else {
-                // Если при компиляции произошла ошибка, тогда отправляем подробности клиенту в браузер
-                query.mimeType = "text/plain";
-                System.out.println("ERROR compile  " + infoCompile);
-                query.write(parseErrorCompileTerminal(infoCompile) + "\r\n");
+                if (compileFile(ServerConstant.config.WEBAPP_DIR, query.requestPath, infoCompile)) {
+                    query.mimeType = "text/html";
+                    CompileObject compileObject = (CompileObject) InstanceClassName.get(query.requestPath);
+                    Class[] argTypes = new Class[]{HttpExchange.class};
+                    Method meth = compileObject.ClassNat.getMethod("onTerminal", argTypes);   // получаем метод по имени и типам входящих переменных
+                    byte[] messageBytes = (byte[]) meth.invoke(compileObject.ObjectInstance, query); // запуск метода на выполнение
+                    if (messageBytes == null)
+                        return true;                                                      // если возвращается NULL тогда ничего отправлять ненадо
+                    query.write(messageBytes);
+                } else {
+                    // Если при компиляции произошла ошибка, тогда отправляем подробности клиенту в браузер
+                    query.mimeType = "text/plain";
+                    System.out.println("ERROR compile  " + infoCompile);
+                    query.write(parseErrorCompileTerminal(infoCompile) + "\r\n");
+                }
             }
             return true;                                                      // если возвращается NULL тогда ничего отправлять ненадо
         } catch (Exception e) {
@@ -388,7 +409,7 @@ public class JavaStrExecut {
                 }
             }
         }
-        return message.toString().replace("\n","\r\n");
+        return message.toString().replace("\n", "\r\n");
     }
 
     /**

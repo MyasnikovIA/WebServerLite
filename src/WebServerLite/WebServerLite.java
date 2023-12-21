@@ -18,6 +18,7 @@ public class WebServerLite implements Runnable {
     public static HashMap<String, File> pagesListFile = new HashMap<String, File>(10, (float) 0.5);
     public static HashMap<String, StringBuffer> pagesListContent = new HashMap<String, StringBuffer>(10, (float) 0.5);
     public static HashMap<String, JavaInnerClassObject> pagesJavaInnerClass = new HashMap<String, JavaInnerClassObject>(10, (float) 0.5);
+    public static HashMap<String, JavaTerminalClassObject> pagesJavaTerminalClass = new HashMap<String, JavaTerminalClassObject>(10, (float) 0.5);
     private static final Logger LOGGER = Logger.getLogger(WebServerLite.class.getName());
     private static WebServerLite server;
     private static boolean isRunServer = false;

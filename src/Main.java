@@ -1,12 +1,8 @@
 import WebServerLite.WebServerLite;
 import WebServerLite.HttpExchange;
 import WebServerLite.PacketManager;
-
 import java.io.IOException;
 import java.util.List;
-
-import static WebServerLite.PacketManager.getWebPage;
-
 
 public class Main {
     public static void main(String[] args) {

@@ -19,9 +19,6 @@ public class esp8266 {
 TERM /Example/Terminal/esp8266.java
 device_name:test1
 
-
-
-
      */
     public static void onTerminal(HttpExchange query) {
         String DeviceName = "";
@@ -29,6 +26,7 @@ device_name:test1
         String UserPass = "";
         String lastCommandName = "";
         String DeviceNameSendTo = "";
+        System.out.println("query.headers " + query.headers);
         if (query.headers.containsKey("device_name")) {
             DeviceName = (String) query.headers.get("device_name");
         }
@@ -44,6 +42,7 @@ device_name:test1
         query.write("{\"register\":\"" + DeviceName + "\"}");
         query.write("\r\n");
         while (query.read() != null) {
+            System.out.println("query.headers " + query.headers);
             System.out.println("query.countQuery " + query.countQuery);
             System.out.println("DeviceName " + DeviceName);
             System.out.println("lastCommandName " + lastCommandName);
